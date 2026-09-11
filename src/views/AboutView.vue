@@ -14,8 +14,8 @@ const features = [
     en: 'Create, edit, drag and re-order waypoints; mix navigation items with actions; set HOME'
   },
   {
-    zh: '割草机（矩形测区）、圆形环绕、多边形测区三种自动航迹生成',
-    en: 'Lawn-mower (rectangle), circular orbit and polygon survey pattern generators'
+    zh: '环绕、多边形测区等自动航迹生成',
+    en: 'Circular orbit and polygon survey pattern generators'
   },
   {
     zh: '安全预检：限高 / 限距 / 转弯半径 / 禁飞区（圆与多边形、限高）/ 电池与能耗',
@@ -43,7 +43,7 @@ const shortcuts = [
     <section class="panel">
       <div class="panel-head">
         <h3>{{ t('about.title') }}</h3>
-        <span class="badge muted mono">v0.1.0</span>
+        <span class="badge muted mono">v1.8.0</span>
         <span class="badge muted mono">MIT</span>
       </div>
       <div class="panel-body">

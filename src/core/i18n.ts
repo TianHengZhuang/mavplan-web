@@ -212,7 +212,7 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.check.ok': '禁飞区「{zone}」限高 {ceiling} m。',
     'about.title': '关于本控制台',
     'about.body':
-      '本控制台是 mavplan 的可视化前端：航点编辑、割草机/环绕/多边形航迹生成、安全预检与多格式导入导出，全部在浏览器本地完成，离线可用，不上传任何数据。',
+      '本控制台是 mavplan（多旋翼无人机、固定翼、无人直升机（单旋翼）、复合翼（垂直起降固定翼）） 的可视化前端：航点编辑、环绕/多边形航迹生成、安全预检与多格式导入导出，全部在浏览器本地完成，离线可用，不上传任何数据。',
     'about.formats': '支持格式：mavplan JSON、QGC .plan、QGC WPL 110/120、KML、CSV。',
     'about.cli': '与命令行配套：mavplan mission check / mavplan simulate run 可复算同一份任务文件。',
     'nav.dashboard': '任务总览',
@@ -484,7 +484,7 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.check.ok': 'Zone "{zone}" ceiling is {ceiling} m.',
     'about.title': 'About',
     'about.body':
-      'This console is the visual front-end of mavplan: waypoint editing, lawn-mower/orbit/polygon patterns, preflight checks and multi-format import/export. Everything runs locally in the browser — offline capable, no data leaves the machine.',
+      'This console is the visual front-end of mavplan (multirotor UAV, fixed-wing, single-rotor helicopter, compound VTOL fixed-wing): waypoint editing, orbit/polygon patterns, preflight checks and multi-format import/export. Everything runs locally in the browser — offline capable, no data leaves the machine.',
     'about.formats': 'Supported formats: mavplan JSON, QGC .plan, QGC WPL 110/120, KML, CSV.',
     'about.cli': 'Pairs with the CLI: `mavplan mission check` / `mavplan simulate run` recompute the same mission file.',
     'nav.dashboard': 'Dashboard',
