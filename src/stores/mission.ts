@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { NAV_WAYPOINT, NAV_LAND, isNavigable } from '../core/actions'
+import { NAV_LAND, NAV_RETURN_TO_LAUNCH, NAV_WAYPOINT, isNavigable } from '../core/actions'
 import { bearingDeg, haversineDistance } from '../core/geo'
 import {
   YAW_UNCONSTRAINED,
@@ -183,9 +183,16 @@ export const useMissionStore = defineStore('mission', () => {
     const first = mission.value.waypoints[0]
     if (!first) return
     mission.value.waypoints.push(
-      createWaypoint({ lat: first.lat, lon: first.lon, alt: first.alt, speed: first.speed })
+      createWaypoint({
+        lat: first.lat,
+        lon: first.lon,
+        alt: first.alt,
+        speed: first.speed,
+        command: NAV_RETURN_TO_LAUNCH
+      })
     )
     resequence(mission.value.waypoints)
+    reselect(mission.value.waypoints.length - 1)
   }
 
   function replaceWaypoints(list: Waypoint[]): void {
@@ -255,13 +262,13 @@ export const useMissionStore = defineStore('mission', () => {
       case 'wpl110':
         return {
           filename: `${base}.waypoints`,
-          content: toWpl(mission.value.waypoints, 'QGC WPL 110'),
+          content: toWpl(mission.value.waypoints, 'QGC WPL 110', mission.value.home),
           mime: 'text/plain'
         }
       case 'wpl120':
         return {
           filename: `${base}.waypoints`,
-          content: toWpl(mission.value.waypoints, 'QGC WPL 120'),
+          content: toWpl(mission.value.waypoints, 'QGC WPL 120', mission.value.home),
           mime: 'text/plain'
         }
       case 'qgc':

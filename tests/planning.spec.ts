@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { DO_SET_CAM_TRIGG_DIST, NAV_WAYPOINT, DO_SET_HOME } from '../src/core/actions'
+import { DO_SET_CAM_TRIGG_DIST, NAV_RETURN_TO_LAUNCH, NAV_WAYPOINT, DO_SET_HOME } from '../src/core/actions'
 import {
   coverageSummary,
   dataVolumeGb,
@@ -259,6 +259,7 @@ describe('mission store planning hooks', () => {
 
     store.addReturnToLaunch()
     const last = store.waypoints[store.waypoints.length - 1]
+    expect(last.command).toBe(NAV_RETURN_TO_LAUNCH)
     expect(last.lat).toBeCloseTo(waypoints[0].lat, 9)
     expect(last.alt).toBeCloseTo(waypoints[0].alt, 6)
   })

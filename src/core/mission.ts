@@ -260,25 +260,51 @@ export function toCsv(waypoints: Waypoint[]): string {
   return rows.join('\n')
 }
 
-/** QGC WPL 110 / 120 mission file (QGroundControl & Mission Planner compatible). */
-export function toWpl(waypoints: Waypoint[], header = 'QGC WPL 120'): string {
+/**
+ * QGC WPL 110 / 120 mission file (QGroundControl & Mission Planner compatible).
+ *
+ * Column order (matches QGC / Mission Planner / mavplan Python):
+ * seq, current, frame, command, p1, p2, p3, p4, x(lat), y(lon), z(alt), autocontinue
+ */
+export function toWpl(waypoints: Waypoint[], header = 'QGC WPL 120', home?: [number, number, number] | null): string {
   const lines = [header]
+  let seq = 0
+  if (home) {
+    lines.push(
+      [
+        seq,
+        0,
+        0,
+        NAV_WAYPOINT,
+        0,
+        0,
+        0,
+        0,
+        home[0].toFixed(7),
+        home[1].toFixed(7),
+        home[2].toFixed(2),
+        1
+      ].join('\t')
+    )
+    seq += 1
+  }
   for (const wp of waypoints) {
     const values = [
-      wp.seq,
+      seq,
       0,
       wp.frame,
       wp.command,
-      wp.autocontinue,
       wp.delay.toFixed(1),
       wp.acceptance_radius.toFixed(1),
       wp.orbit.toFixed(1),
       wp.yaw.toFixed(1),
       wp.lat.toFixed(7),
       wp.lon.toFixed(7),
-      wp.alt.toFixed(2)
+      wp.alt.toFixed(2),
+      wp.autocontinue
     ]
     lines.push(values.join('\t'))
+    seq += 1
   }
   return lines.join('\n')
 }
@@ -329,8 +355,11 @@ ${coords.join('\n')}
 
 /**
  * QGroundControl `.plan` document (Plan file format v1).
- * Param order follows the QGC convention: for MAV_CMD_NAV_WAYPOINT the
- * `delay / acceptance / orbit / yaw` values map to param1..param4.
+ *
+ * Authoritative waypoint payload is the 7-element `params` array
+ * `[p1, p2, p3, p4, lat, lon, alt]` — identical to mavplan Python
+ * `formats.to_qgc_plan`. The top-level `lat`/`lon` SimpleItem fields that
+ * older writers used are NOT part of the QGC format and are ignored on read.
  */
 export function toQgcPlan(
   mission: MissionDoc,
@@ -342,20 +371,30 @@ export function toQgcPlan(
     mission.waypoints[0]?.lon ?? 0,
     0
   ]
-  const items = mission.waypoints.map((wp, index) => ({
+  const items = mission.waypoints.map((wp) => ({
     AMSLAltAboveTerrain: null,
     Altitude: wp.alt,
-    AltitudeMode: wp.frame === 3 ? 1 : 0,
+    AltitudeMode: wp.frame === 0 ? 0 : 1,
     autoContinue: wp.autocontinue === 1,
     command: wp.command,
-    doJumpId: index + 1,
+    doJumpId: null,
     frame: wp.frame,
-    params: [wp.delay, wp.acceptance_radius, wp.orbit, wp.yaw],
-    type: 'SimpleItem'
+    params: [
+      wp.delay,
+      wp.acceptance_radius,
+      wp.orbit,
+      wp.yaw,
+      wp.lat,
+      wp.lon,
+      wp.alt
+    ],
+    type: 'SimpleItem',
+    coordinate: [wp.lat, wp.lon],
+    relativeAltitude: wp.frame !== 0
   }))
   return {
     fileType: 'Plan',
-    geoFence: { circles: [], polygons: [], version: 2 },
+    geoFence: { circles: [], polygons: [], version: 1 },
     groundStation: 'mavplan-web',
     mission: {
       cruiseSpeed,
@@ -367,7 +406,7 @@ export function toQgcPlan(
       vehicleType: 2,
       version: 2
     },
-    rallyPoints: { points: [], version: 2 },
+    rallyPoints: { points: [], version: 1 },
     version: 1
   }
 }
@@ -398,59 +437,78 @@ export function parseWpl(text: string): MissionDoc {
   const lines = text
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length > 0)
+    .filter((line) => line.length > 0 && !line.startsWith('#'))
   if (!lines.length || !lines[0].startsWith('QGC WPL')) {
     throw new Error('Not a QGC WPL file (missing header)')
   }
   const mission = createMission('Imported WPL mission')
   for (const line of lines.slice(1)) {
-    const cells = line.split(/\s+/)
-    if (cells.length < 12) continue
-    const [seq, , frame, command, autocontinue, p1, p2, p3, p4, lat, lon, alt] = cells
+    // QGC/Mission Planner emit tabs; be liberal with commas / whitespace.
+    const cells = line.replace(/,/g, '\t').split(/\s+/).filter((c) => c.length > 0)
+    if (cells.length < 11) continue
+    const seq = Number(cells[0])
+    const frame = Number(cells[2])
+    const command = Number(cells[3])
+    const p1 = Number(cells[4])
+    const p2 = Number(cells[5])
+    const p3 = Number(cells[6])
+    const p4 = Number(cells[7])
+    const lat = Number(cells[8])
+    const lon = Number(cells[9])
+    const alt = Number(cells[10])
+    const autocontinue = cells.length > 11 ? Number(cells[11]) : 1
+    // Leading HOME row (NAV_WAYPOINT + MAV_FRAME_GLOBAL) is metadata, not a flown item.
+    if (command === NAV_WAYPOINT && frame === 0 && mission.home === null) {
+      mission.home = [lat, lon, alt]
+      continue
+    }
     mission.waypoints.push(
       createWaypoint({
-        seq: Number(seq),
-        frame: Number(frame),
-        command: Number(command),
-        autocontinue: Number(autocontinue),
-        delay: Number(p1),
-        acceptance_radius: Number(p2),
-        orbit: Number(p3),
-        yaw: Number(p4),
-        lat: Number(lat),
-        lon: Number(lon),
-        alt: Number(alt)
+        frame,
+        command,
+        autocontinue,
+        delay: p1,
+        acceptance_radius: p2,
+        orbit: p3,
+        yaw: p4,
+        lat,
+        lon,
+        alt
       })
     )
   }
   resequence(mission.waypoints)
-  if (mission.waypoints.length) {
-    const first = mission.waypoints[0]
-    mission.home = [first.lat, first.lon, 0]
-  }
   return mission
 }
 
 export function parseQgcPlan(text: string): MissionDoc {
   const data = JSON.parse(text) as Record<string, unknown>
+  if (data.fileType && data.fileType !== 'Plan') {
+    throw new Error('Not a QGroundControl .plan file (missing fileType "Plan")')
+  }
   const missionBlock = (data.mission ?? {}) as Record<string, unknown>
   const items = Array.isArray(missionBlock.items) ? (missionBlock.items as Record<string, unknown>[]) : []
   const mission = createMission('Imported QGC plan')
   const home = Array.isArray(missionBlock.plannedHomePosition)
     ? (missionBlock.plannedHomePosition as number[])
     : null
-  if (home && home.length >= 3) mission.home = [home[0], home[1], home[2]]
+  if (home && home.length >= 2) {
+    mission.home = [Number(home[0]), Number(home[1]), Number(home[2] ?? 0)]
+  }
   for (const item of items) {
     if (item.type && item.type !== 'SimpleItem') continue
-    const params = Array.isArray(item.params) ? (item.params as number[]) : []
-    const lat = Number(item.lat ?? NaN)
-    const lon = Number(item.lon ?? NaN)
+    const params = Array.isArray(item.params) ? (item.params as unknown[]) : []
     const coordinate = Array.isArray(item.coordinate) ? (item.coordinate as number[]) : null
+    // Authoritative: params = [p1, p2, p3, p4, lat, lon, alt] (QGC + mavplan Python).
+    // Fall back to `coordinate: [lat, lon]` when params are missing or too short.
+    const rawLat = params.length >= 7 ? Number(params[4]) : Number(coordinate?.[0] ?? NaN)
+    const rawLon = params.length >= 7 ? Number(params[5]) : Number(coordinate?.[1] ?? NaN)
+    const rawAlt = params.length >= 7 ? Number(params[6]) : Number(item.Altitude ?? coordinate?.[2] ?? 0)
     mission.waypoints.push(
       createWaypoint({
-        lat: Number.isFinite(lat) ? lat : coordinate ? coordinate[1] : 0,
-        lon: Number.isFinite(lon) ? lon : coordinate ? coordinate[0] : 0,
-        alt: Number(item.Altitude ?? coordinate?.[2] ?? 0),
+        lat: Number.isFinite(rawLat) ? rawLat : 0,
+        lon: Number.isFinite(rawLon) ? rawLon : 0,
+        alt: Number.isFinite(rawAlt) ? rawAlt : 0,
         frame: Number(item.frame ?? 3),
         command: Number(item.command ?? NAV_WAYPOINT),
         autocontinue: item.autoContinue === false ? 0 : 1,

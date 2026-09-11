@@ -69,4 +69,24 @@ MIT，详见 [LICENSE](LICENSE)。
 
 ---
 
+## Changelog
+
+### v1.8.0 (2026-09-11)
+
+Fixed QGC interop bugs found in review (aligned with mavplan Python `formats.py`):
+
+- **WPL column order**: writer/reader previously swapped `autocontinue` with `param1`. Real QGC / Mission Planner files now import correctly; exports use `seq, current, frame, command, p1..p4, lat, lon, alt, autocontinue`.
+- **QGC `.plan` export**: `params` is now the full 7-element array `[p1, p2, p3, p4, lat, lon, alt]` plus `coordinate: [lat, lon]`. The old 4-param payload dropped every waypoint position.
+- **QGC `.plan` import**: reads coordinates from `params[4..6]` first (QGC authoritative), falls back to `coordinate: [lat, lon]`. The previous reader inverted lat/lon on the coordinate fallback.
+- **WPL HOME row**: leading `frame=0` HOME item is stored as `mission.home` instead of becoming a flown waypoint; optional leading HOME is emitted on WPL export when home is set.
+- **Return-to-launch**: `addReturnToLaunch()` now inserts `NAV_RETURN_TO_LAUNCH` (cmd 20) instead of a plain waypoint.
+- Tests: 42 → 47, covering real QGC WPL 110 samples, `.plan` 7-param round-trip, coordinate-only plans, HOME extraction and RTL command.
+
+### v1.7.0 (2026-09-11)
+
+- Initial public console: mission editor, patterns, preflight, flight plan, camera panel, printable briefing, playback, dashboard.
+- Offline SVG map, zh-CN / en UI, localStorage persistence, GitHub Pages demo workflow.
+
+---
+
 `mavplan-web` is the browser console companion to the `mavplan` toolkit: waypoint editing, area-coverage pattern generation, preflight checks and mission file import/export. It is a pure client-side Vue 3 + TypeScript application and keeps working offline.

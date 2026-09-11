@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { NAV_WAYPOINT, DO_SET_HOME, commandName, isAction, isNavigable } from '../src/core/actions'
+import {
+  DO_SET_HOME,
+  NAV_WAYPOINT,
+  commandName,
+  isAction,
+  isNavigable
+} from '../src/core/actions'
 import {
   bearingDeg,
   distancePointToSegment,
@@ -16,8 +22,11 @@ import {
   createWaypoint,
   missionStats,
   parseMissionText,
+  parseQgcPlan,
+  parseWpl,
   resequence,
   sampleMission,
+  toQgcPlan,
   toWpl,
   type Waypoint
 } from '../src/core/mission'
@@ -170,6 +179,107 @@ describe('mission document', () => {
     expect(parsed.mission.waypoints.length).toBe(waypoints.length)
     expect(Math.abs(parsed.mission.waypoints[1].lon - waypoints[1].lon)).toBeLessThan(1e-5)
     expect(parsed.mission.waypoints[0].alt).toBeCloseTo(70, 3)
+  })
+
+  it('reads a real QGC WPL 110 file with the standard column order', () => {
+    // seq current frame command p1 p2 p3 p4 x y z autocontinue
+    const text = [
+      'QGC WPL 110',
+      '0\t1\t0\t16\t0\t0\t0\t0\t22.8000000\t108.3000000\t0.00\t1',
+      '1\t0\t3\t22\t0\t0\t0\t0\t22.8010000\t108.3000000\t45.00\t1',
+      '2\t0\t3\t16\t5.0\t2.0\t0.0\t90.0\t22.8020000\t108.3010000\t60.00\t1',
+      '3\t0\t3\t16\t0.0\t2.0\t0.0\t-9999.0\t22.8030000\t108.3020000\t55.00\t1'
+    ].join('\n')
+    const mission = parseWpl(text)
+    expect(mission.home).toEqual([22.8, 108.3, 0])
+    expect(mission.waypoints.length).toBe(3)
+    expect(mission.waypoints[0].command).toBe(22)
+    expect(mission.waypoints[0].lat).toBeCloseTo(22.801, 6)
+    expect(mission.waypoints[1].delay).toBeCloseTo(5, 6)
+    expect(mission.waypoints[1].yaw).toBeCloseTo(90, 6)
+    expect(mission.waypoints[1].lat).toBeCloseTo(22.802, 6)
+    expect(mission.waypoints[1].lon).toBeCloseTo(108.301, 6)
+    expect(mission.waypoints[1].alt).toBeCloseTo(60, 6)
+  })
+
+  it('writes WPL with autocontinue in the last column (QGC order)', () => {
+    const wp = createWaypoint({ lat: 22.81, lon: 108.31, alt: 50, delay: 3, yaw: 45, autocontinue: 1 })
+    const text = toWpl([wp])
+    const cells = text.split('\n')[1].split('\t')
+    expect(cells.length).toBe(12)
+    expect(cells[3]).toBe(String(NAV_WAYPOINT))
+    expect(Number(cells[4])).toBeCloseTo(3, 6)
+    expect(Number(cells[7])).toBeCloseTo(45, 6)
+    expect(Number(cells[8])).toBeCloseTo(22.81, 6)
+    expect(cells[11]).toBe('1')
+  })
+
+  it('round-trips a QGC .plan through the 7-element params array', () => {
+    const mission = createMission('plan-roundtrip')
+    mission.home = [22.8, 108.3, 0]
+    mission.waypoints = [
+      createWaypoint({ lat: 22.801, lon: 108.301, alt: 50, speed: 8, delay: 1.5, yaw: 90 }),
+      createWaypoint({ lat: 22.802, lon: 108.302, alt: 60, speed: 8 })
+    ]
+    resequence(mission.waypoints)
+    const plan = toQgcPlan(mission)
+    const parsed = parseQgcPlan(JSON.stringify(plan))
+    expect(parsed.home?.[0]).toBeCloseTo(22.8, 6)
+    expect(parsed.waypoints.length).toBe(2)
+    expect(parsed.waypoints[0].lat).toBeCloseTo(22.801, 6)
+    expect(parsed.waypoints[0].lon).toBeCloseTo(108.301, 6)
+    expect(parsed.waypoints[0].alt).toBeCloseTo(50, 6)
+    expect(parsed.waypoints[0].delay).toBeCloseTo(1.5, 6)
+    expect(parsed.waypoints[0].yaw).toBeCloseTo(90, 6)
+    expect(parsed.waypoints[1].lat).toBeCloseTo(22.802, 6)
+  })
+
+  it('reads a QGC plan that only carries coordinate arrays', () => {
+    const plan = {
+      fileType: 'Plan',
+      mission: {
+        plannedHomePosition: [22.8, 108.3, 0],
+        items: [
+          {
+            type: 'SimpleItem',
+            command: 16,
+            frame: 3,
+            autoContinue: true,
+            Altitude: 55,
+            params: [0, 2, 0, -9999, 22.805, 108.305, 55],
+            coordinate: [22.805, 108.305]
+          },
+          {
+            type: 'SimpleItem',
+            command: 16,
+            frame: 3,
+            autoContinue: true,
+            Altitude: 40,
+            params: [0, 0, 0, 0],
+            coordinate: [22.806, 108.306]
+          }
+        ]
+      }
+    }
+    const mission = parseQgcPlan(JSON.stringify(plan))
+    expect(mission.waypoints[0].lat).toBeCloseTo(22.805, 6)
+    expect(mission.waypoints[0].lon).toBeCloseTo(108.305, 6)
+    expect(mission.waypoints[1].lat).toBeCloseTo(22.806, 6)
+    expect(mission.waypoints[1].lon).toBeCloseTo(108.306, 6)
+  })
+
+  it('exports WPL with a leading HOME row when home is set', () => {
+    const wp = createWaypoint({ lat: 22.81, lon: 108.31, alt: 50 })
+    const text = toWpl([wp], 'QGC WPL 120', [22.8, 108.3, 0])
+    const lines = text.split('\n')
+    expect(lines).toHaveLength(3)
+    const homeCells = lines[1].split('\t')
+    expect(Number(homeCells[2])).toBe(0)
+    expect(Number(homeCells[8])).toBeCloseTo(22.8, 6)
+    const parsed = parseWpl(text)
+    expect(parsed.home?.[0]).toBeCloseTo(22.8, 6)
+    expect(parsed.waypoints).toHaveLength(1)
+    expect(parsed.waypoints[0].lat).toBeCloseTo(22.81, 6)
   })
 
   it('renumbers waypoints after edits', () => {
