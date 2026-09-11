@@ -418,7 +418,7 @@ export function toQgcPlan(
 export type MissionFormat = 'mission-json' | 'qgc-plan' | 'wpl'
 
 export function sniffFormat(text: string): MissionFormat | null {
-  const trimmed = text.trim()
+  const trimmed = text.replace(/^﻿/, '').trim()
   if (!trimmed) return null
   if (trimmed.startsWith('QGC WPL')) return 'wpl'
   if (trimmed.startsWith('{')) {
@@ -435,6 +435,7 @@ export function sniffFormat(text: string): MissionFormat | null {
 
 export function parseWpl(text: string): MissionDoc {
   const lines = text
+    .replace(/^﻿/, '')
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line.length > 0 && !line.startsWith('#'))
@@ -482,7 +483,7 @@ export function parseWpl(text: string): MissionDoc {
 }
 
 export function parseQgcPlan(text: string): MissionDoc {
-  const data = JSON.parse(text) as Record<string, unknown>
+  const data = JSON.parse(text.replace(/^﻿/, '')) as Record<string, unknown>
   if (data.fileType && data.fileType !== 'Plan') {
     throw new Error('Not a QGroundControl .plan file (missing fileType "Plan")')
   }
@@ -524,11 +525,12 @@ export function parseQgcPlan(text: string): MissionDoc {
 }
 
 export function parseMissionText(text: string): { mission: MissionDoc; format: MissionFormat } {
-  const format = sniffFormat(text)
+  const cleaned = text.replace(/^﻿/, '')
+  const format = sniffFormat(cleaned)
   if (!format) throw new Error('Unrecognised mission file — expected mavplan JSON, QGC .plan or QGC WPL')
-  if (format === 'wpl') return { mission: parseWpl(text), format }
-  if (format === 'qgc-plan') return { mission: parseQgcPlan(text), format }
-  return { mission: fromDict(JSON.parse(text) as Record<string, unknown>), format }
+  if (format === 'wpl') return { mission: parseWpl(cleaned), format }
+  if (format === 'qgc-plan') return { mission: parseQgcPlan(cleaned), format }
+  return { mission: fromDict(JSON.parse(cleaned) as Record<string, unknown>), format }
 }
 
 /* ------------------------------------------------------------------ *

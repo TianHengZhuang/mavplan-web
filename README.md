@@ -106,6 +106,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.9.1 (2026-09-11)
+
+- Fixed: mission import now accepts files saved with a UTF-8 BOM (`sniffFormat` / `parseWpl` / `parseQgcPlan` / `parseMissionText`), matching PowerShell `Set-Content -Encoding utf8` output and mavplan Python v1.7.2.
+
 ### v1.9.0 (2026-09-11)
 
 Backend pairing with the mavplan Python toolkit (same files, same limits):

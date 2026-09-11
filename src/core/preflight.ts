@@ -258,10 +258,12 @@ export function preflightCheck(
       const b = waypoints[i + 1]
       const relation = segmentZoneRelation(a, b, zone, 1)
       if (relation === 'clear') continue
-      const ceilingExceeded =
-        zone.ceilingM > 0 &&
-        Math.min(altitudeAt(waypoints, i), altitudeAt(waypoints, i + 1)) < zone.ceilingM
-      if (!ceilingExceeded) continue
+      // ceilingM <= 0 means unlimited: the zone always applies.
+      // ceilingM > 0 means the zone only restricts flight below that altitude
+      // (flying over the ceiling is allowed).
+      const minAlt = Math.min(altitudeAt(waypoints, i), altitudeAt(waypoints, i + 1))
+      const applies = zone.ceilingM <= 0 || minAlt < zone.ceilingM
+      if (!applies) continue
       const code: PreflightCode =
         relation === 'inside' ? 'zone-inside' : relation === 'intersect' ? 'zone-intersect' : 'zone-tangent'
       report.items.push({

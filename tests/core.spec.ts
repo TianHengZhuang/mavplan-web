@@ -181,6 +181,15 @@ describe('mission document', () => {
     expect(parsed.mission.waypoints[0].alt).toBeCloseTo(70, 3)
   })
 
+  it('accepts mission files saved with a UTF-8 BOM', () => {
+    const wp = createWaypoint({ lat: 22.81, lon: 108.31, alt: 50 })
+    const body = toWpl([wp])
+    const parsed = parseMissionText('﻿' + body)
+    expect(parsed.format).toBe('wpl')
+    expect(parsed.mission.waypoints).toHaveLength(1)
+    expect(parsed.mission.waypoints[0].lat).toBeCloseTo(22.81, 6)
+  })
+
   it('reads a real QGC WPL 110 file with the standard column order', () => {
     // seq current frame command p1 p2 p3 p4 x y z autocontinue
     const text = [
