@@ -37,6 +37,9 @@ export interface PolygonZone {
   name: string
   vertices: LatLon[]
   ceilingM: number
+  /** Anchor mirroring Python Zone.to_dict (first vertex). Optional for UI-only zones. */
+  lat?: number
+  lon?: number
 }
 
 export type Zone = CircleZone | PolygonZone

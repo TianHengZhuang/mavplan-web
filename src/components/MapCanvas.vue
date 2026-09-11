@@ -22,6 +22,7 @@ import {
 import { isNavigable } from '../core/actions'
 import type { Waypoint } from '../core/mission'
 import type { Zone } from '../core/preflight'
+import type { TaskCheckPoint } from '../core/taskspec'
 
 const props = defineProps<{
   waypoints: Waypoint[]
@@ -34,6 +35,8 @@ const props = defineProps<{
   showZones: boolean
   /** When true a click on the map adds a waypoint. */
   armed: boolean
+  /** TaskSpec required checkpoints (exam brief overlay). */
+  required?: TaskCheckPoint[]
 }>()
 
 const emit = defineEmits<{
@@ -156,6 +159,21 @@ const zoneShapes = computed(() => {
           return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
         })
         .join(' ')
+    }
+  })
+})
+
+const requiredShapes = computed(() => {
+  const list = props.required ?? []
+  return list.map((cp) => {
+    const p = project({ lat: cp.lat, lon: cp.lon })
+    return {
+      id: `${cp.kind}-${cp.name}-${cp.lat}`,
+      kind: cp.kind,
+      name: cp.name,
+      x: p.x,
+      y: p.y,
+      r: Math.max(cp.radiusM, 12)
     }
   })
 })
@@ -407,6 +425,31 @@ onBeforeUnmount(() => {
             :stroke-width="px(1.6)"
             fill="rgba(211, 58, 58, 0.14)"
           />
+        </template>
+      </g>
+
+      <g class="required-points" v-if="requiredShapes.length">
+        <template v-for="cp in requiredShapes" :key="cp.id">
+          <circle
+            :cx="cp.x"
+            :cy="cp.y"
+            :r="cp.r * pxPerMeter"
+            :stroke-width="px(1.4)"
+            fill="rgba(39, 174, 96, 0.12)"
+            stroke="#27ae60"
+            stroke-dasharray="4 3"
+          />
+          <circle :cx="cp.x" :cy="cp.y" :r="px(4)" fill="#27ae60" />
+          <text
+            v-if="showLabels"
+            :x="cp.x"
+            :y="cp.y - px(10)"
+            text-anchor="middle"
+            class="req-label"
+            :font-size="px(11)"
+          >
+            {{ cp.name }}
+          </text>
         </template>
       </g>
 

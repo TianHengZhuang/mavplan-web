@@ -107,6 +107,7 @@ function confirmClear(): void {
               :waypoints="store.waypoints"
               :home="store.home"
               :zones="settings.zones"
+              :required="settings.taskBrief?.required ?? []"
               :selected-seq="store.selectedSeq"
               :show-tiles="settings.showTiles"
               :show-grid="settings.showGrid"

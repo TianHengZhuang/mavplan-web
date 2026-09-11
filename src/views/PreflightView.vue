@@ -5,6 +5,7 @@
  */
 import { ref } from 'vue'
 import AltitudeProfile from '../components/AltitudeProfile.vue'
+import CliCompanion from '../components/CliCompanion.vue'
 import MapCanvas from '../components/MapCanvas.vue'
 import PreflightPanel from '../components/PreflightPanel.vue'
 import { t } from '../core/i18n'
@@ -36,6 +37,7 @@ const mapRef = ref<InstanceType<typeof MapCanvas> | null>(null)
             :waypoints="store.waypoints"
             :home="store.home"
             :zones="settings.zones"
+            :required="settings.taskBrief?.required ?? []"
             :selected-seq="store.selectedSeq"
             :show-tiles="settings.showTiles"
             :show-grid="settings.showGrid"
@@ -52,6 +54,8 @@ const mapRef = ref<InstanceType<typeof MapCanvas> | null>(null)
         :selected-seq="store.selectedSeq"
         @select="store.selectedSeq = $event"
       />
+
+      <CliCompanion />
     </div>
   </div>
 </template>

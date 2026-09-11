@@ -6,6 +6,8 @@ import {
 } from '../core/actions'
 import { locale as i18nLocale, setLocale, type Locale } from '../core/i18n'
 import { defaultParams, type PreflightParams, type Zone } from '../core/preflight'
+import { applyTaskToPreflight, type TaskBrief } from '../core/taskspec'
+import { parseZonesJson, toZonesJson } from '../core/zones'
 
 const STORAGE_KEY = 'mavplan-web.settings'
 
@@ -17,6 +19,7 @@ interface PersistedSettings {
   showZones?: boolean
   params?: PreflightParams
   zones?: Zone[]
+  task?: TaskBrief | null
 }
 
 function load(): PersistedSettings {
@@ -38,6 +41,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const showZones = ref(stored.showZones ?? true)
   const params = ref<PreflightParams>({ ...defaultParams(), ...(stored.params ?? {}) })
   const zones = ref<Zone[]>(stored.zones ?? [])
+  const taskBrief = ref<TaskBrief | null>(stored.task ?? null)
   const statusMessage = ref('')
 
   if (stored.locale) setLocale(stored.locale)
@@ -53,7 +57,8 @@ export const useSettingsStore = defineStore('settings', () => {
           showLabels: showLabels.value,
           showZones: showZones.value,
           params: params.value,
-          zones: zones.value
+          zones: zones.value,
+          task: taskBrief.value
         })
       )
     } catch {
@@ -61,7 +66,7 @@ export const useSettingsStore = defineStore('settings', () => {
     }
   }
 
-  watch([locale, showTiles, showGrid, showLabels, showZones, params, zones], persist, {
+  watch([locale, showTiles, showGrid, showLabels, showZones, params, zones, taskBrief], persist, {
     deep: true
   })
 
@@ -95,6 +100,35 @@ export const useSettingsStore = defineStore('settings', () => {
     zones.value = []
   }
 
+  /** Import mavplan zones JSON (Python load_zones_json layout). */
+  function importZonesJson(text: string): number {
+    const parsed = parseZonesJson(text)
+    zones.value = [...zones.value, ...parsed]
+    return parsed.length
+  }
+
+  function exportZonesJson(): string {
+    return toZonesJson(zones.value)
+  }
+
+  /**
+   * Load a TaskSpec brief: store it, merge no-fly zones, and retune
+   * preflight limits so browser checks match the CLI grader.
+   */
+  function applyTaskBrief(brief: TaskBrief, options: { replaceZones?: boolean } = {}): void {
+    taskBrief.value = brief
+    if (options.replaceZones !== false) {
+      zones.value = [...brief.noFlyZones]
+    } else {
+      zones.value = [...zones.value, ...brief.noFlyZones]
+    }
+    params.value = applyTaskToPreflight(params.value, brief)
+  }
+
+  function clearTaskBrief(): void {
+    taskBrief.value = null
+  }
+
   const cameraTriggerCommands = computed(() => [DO_SET_CAM_TRIGG_DIST, DO_SET_CAM_TRIGG_INTERVAL])
 
   return {
@@ -105,6 +139,7 @@ export const useSettingsStore = defineStore('settings', () => {
     showZones,
     params,
     zones,
+    taskBrief,
     statusMessage,
     cameraTriggerCommands,
     switchLocale,
@@ -113,6 +148,10 @@ export const useSettingsStore = defineStore('settings', () => {
     addZone,
     removeZone,
     updateZone,
-    clearZones
+    clearZones,
+    importZonesJson,
+    exportZonesJson,
+    applyTaskBrief,
+    clearTaskBrief
   }
 })

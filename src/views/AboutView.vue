@@ -3,6 +3,7 @@
  * About view — what the console is, what it talks to, and where it sits in the
  * mavplan family.
  */
+import CliCompanion from '../components/CliCompanion.vue'
 import { t } from '../core/i18n'
 import { useSettingsStore } from '../stores/settings'
 
@@ -81,6 +82,8 @@ const shortcuts = [
         </p>
       </div>
     </section>
+
+    <CliCompanion style="margin-top: 12px" />
   </div>
 </template>
 

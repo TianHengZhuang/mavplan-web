@@ -6,11 +6,15 @@
 import { computed, ref } from 'vue'
 import { t } from '../core/i18n'
 import type { Waypoint } from '../core/mission'
+import { looksLikeTaskSpec, parseTaskSpec } from '../core/taskspec'
+import { parseZonesJson } from '../core/zones'
 import { useMissionStore } from '../stores/mission'
+import { useSettingsStore } from '../stores/settings'
 
-type ExportKind = 'json' | 'wpl110' | 'wpl120' | 'qgc' | 'kml' | 'csv'
+type ExportKind = 'json' | 'wpl110' | 'wpl120' | 'qgc' | 'kml' | 'csv' | 'zones'
 
 const store = useMissionStore()
+const settings = useSettingsStore()
 
 const text = ref('')
 const kind = ref<ExportKind>('json')
@@ -19,7 +23,16 @@ const message = ref('')
 const showPreview = ref(false)
 const fileName = ref('')
 
-const payload = computed(() => store.exportPayload(kind.value))
+const payload = computed(() => {
+  if (kind.value === 'zones') {
+    return {
+      filename: 'zones.json',
+      content: settings.exportZonesJson(),
+      mime: 'application/json'
+    }
+  }
+  return store.exportPayload(kind.value)
+})
 
 const exportOptions: { value: ExportKind; labelKey: string }[] = [
   { value: 'json', labelKey: 'io.exportJson' },
@@ -27,7 +40,8 @@ const exportOptions: { value: ExportKind; labelKey: string }[] = [
   { value: 'wpl120', labelKey: 'io.exportWpl120' },
   { value: 'qgc', labelKey: 'io.exportQgcPlan' },
   { value: 'kml', labelKey: 'io.exportKml' },
-  { value: 'csv', labelKey: 'io.exportCsv' }
+  { value: 'csv', labelKey: 'io.exportCsv' },
+  { value: 'zones', labelKey: 'io.exportZones' }
 ]
 
 function runImport(name: string): void {
@@ -35,7 +49,42 @@ function runImport(name: string): void {
     message.value = t('io.importFailed', { message: 'empty input' })
     return
   }
-  const result = store.importText(text.value, name || 'mission')
+  const body = text.value
+  // TaskSpec brief (mavplan scenario / grade task JSON)
+  if (looksLikeTaskSpec(body)) {
+    try {
+      const brief = parseTaskSpec(body)
+      settings.applyTaskBrief(brief)
+      message.value = t('io.importedTask', {
+        name: brief.name,
+        zones: brief.noFlyZones.length,
+        required: brief.required.length
+      })
+      return
+    } catch (error) {
+      message.value = t('io.importFailed', {
+        message: error instanceof Error ? error.message : String(error)
+      })
+      return
+    }
+  }
+  // Zones JSON (mavplan load_zones_json layout)
+  const trimmed = body.trim()
+  if (
+    (trimmed.startsWith('{') || trimmed.startsWith('[')) &&
+    /"(zones|radius_m|kind)"\s*:/.test(trimmed) &&
+    !/"waypoints"\s*:/.test(trimmed) &&
+    !/"fileType"\s*:\s*"Plan"/.test(trimmed)
+  ) {
+    try {
+      const count = settings.importZonesJson(body)
+      message.value = t('io.importedZones', { count })
+      return
+    } catch {
+      /* fall through to mission import */
+    }
+  }
+  const result = store.importText(body, name || 'mission')
   message.value = result.ok
     ? t('io.imported', { name: name || 'mission', format: result.format ?? '', count: result.count ?? 0 })
     : t('io.importFailed', { message: result.message })
@@ -101,11 +150,16 @@ const previewWaypoints = computed<Waypoint[]>(() => store.waypoints)
         @dragleave="dragging = false"
         @drop="onDrop"
       >
-        <p>{{ t('io.importHint') }}</p>
+        <p>{{ t('io.importHintBackend') }}</p>
         <div class="toolbar" style="justify-content: center">
           <label class="btn small">
             {{ t('io.browse') }}
-            <input type="file" accept=".json,.plan,.waypoints,.txt,.kml,.csv" hidden @change="onFileInput" />
+            <input
+              type="file"
+              accept=".json,.plan,.waypoints,.txt,.kml,.csv"
+              hidden
+              @change="onFileInput"
+            />
           </label>
           <button class="btn small" type="button" :disabled="!text.trim()" @click="runImport(fileName)">
             {{ t('common.apply') }}

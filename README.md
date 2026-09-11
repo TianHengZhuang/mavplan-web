@@ -71,6 +71,17 @@ MIT，详见 [LICENSE](LICENSE)。
 
 ## Changelog
 
+### v1.9.0 (2026-09-11)
+
+Backend pairing with the mavplan Python toolkit (same files, same limits):
+
+- **TaskSpec import** — load a CLI exam brief (`mavplan scenario run --task-out task.json` / `TaskSpec.save()`). Applies home, altitude/speed windows, max distance/time to preflight and merges `no_fly_zones` into the zone list.
+- **Zones JSON import/export** — Python `load_zones_json` layout (`radius_m`, `kind`, `vertices` as `[lat, lon]`, bare list / `{"zones":[...]}`). Export option: 禁飞区 JSON（mavplan）.
+- **Required-checkpoint overlay** — green dashed rings + labels on the editor and preflight maps for TaskSpec `required` points/areas.
+- **CLI companion panel** — paste-ready `pip install` / `mission import` / `mission preview` / `mission check --zones-json` / `grade` commands for the live mission, zones and task.
+- New modules: `src/core/zones.ts`, `src/core/taskspec.ts`, `src/core/cli.ts`.
+- Tests: 47 → 56.
+
 ### v1.8.0 (2026-09-11)
 
 Fixed QGC interop bugs found in review (aligned with mavplan Python `formats.py`):
