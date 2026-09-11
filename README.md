@@ -1,71 +1,106 @@
 # mavplan-web
 
-[mavplan](https://github.com/TianHengZhuang/mavplan) 的配套 Web 控制台：在浏览器里完成航线编辑、区域扫描图案生成、飞行前检查与任务文件收发。纯前端实现，不依赖后端服务，可离线使用。
+Browser console companion to the [mavplan](https://github.com/TianHengZhuang/mavplan) Python toolkit.
 
-## 功能
+Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixed-wing missions in the browser: edit waypoints, generate survey patterns, run preflight checks, and exchange mission files with the CLI. Pure client-side Vue 3 + TypeScript — no backend, works offline, no data leaves the machine.
 
-| 模块 | 说明 |
+## Features
+
+| Module | What it does |
 | --- | --- |
-| 航线编辑器 | 地图上点位增删改拖拽、经纬度/高度表格编辑、航点排序重编号 |
-| 高度剖面 | 按累计距离绘制爬升剖面，点击剖面与地图联动选中航点 |
-| 图案生成 | 割草机式（矩形按航线间距逐行覆盖）、环绕（圆周等分）、多边形扫描（含凸包包围盒与面积核算） |
-| 飞行前检查 | 超限高度/超限航程、禁飞区（圆形与多边形，含限高）冲突判定、电量与返航余量估算、结果分级 |
-| 任务收发 | 导入导出 QGC WPL / QGC Plan / KML / CSV / JSON，自动识别格式 |
-| 航段规划 | 相邻航点自动成段，给出航段距离、方位角、飞行时间与爬升率，累计爬升/下降与最大垂直速率汇总 |
-| 动作项 | 单独列出自研动作（相机触发、设置 HOME、返航等）并就地修改触发间距或时间间隔 |
-| 载荷估算 | 按航高与视场角推算地面幅宽、GSD、重叠率与拍照间距，估算照片数与数据量 |
-| 任务简报 | 一页纸简报：关键指标、航点/航段表、载荷估算、预检结论与签派签字栏，可打印或导出 PDF、可复制为纯文本 |
-| 飞行回放 | 沿航迹按距离/时间回放，显示当前位置、高度、速度与所属航段 |
-| 控制台总览 | 任务统计、航段分布与预检摘要仪表盘 |
-| 其他 | 中英文界面切换、明暗主题、任务本地持久化（localStorage）、快捷键（<kbd>Ctrl</kbd>+<kbd>Z</kbd> 撤销等） |
+| Waypoint editor | Add / edit / drag / reorder points on an offline SVG map; lat-lon-alt table editing; automatic resequencing |
+| Altitude profile | Climb profile vs cumulative distance; click a point on the profile or map to select the same waypoint |
+| Pattern generators | Lawn-mower (rectangular block by lane spacing), circular orbit, polygon scan (bounding box + area) |
+| Preflight | Altitude / range envelopes, turn radius, circular + polygon no-fly zones (with ceilings), battery and reserve estimates, graded findings |
+| Mission I/O | Import / export mavplan JSON, QGC `.plan`, QGC WPL 110/120, KML, CSV; auto format sniffing |
+| Task brief (TaskSpec) | Load a mavplan exam brief (`task.json`); apply home, altitude/speed windows, max distance/time and merge `no_fly_zones` |
+| Zones JSON | Import / export no-fly zones in the Python `load_zones_json` layout (`radius_m`, `kind`, `vertices`) |
+| Required checkpoints | Green dashed rings + labels for TaskSpec `required` points/areas on the editor and preflight maps |
+| CLI companion | Paste-ready `mavplan mission import / preview / check / grade` commands for the live mission, zones and task |
+| Flight legs | Per-leg distance, bearing, duration and climb rate; cumulative climb/descent and steepest vertical rate |
+| Action items | DO_* actions (camera trigger, set HOME, RTL, …) with in-place interval / distance editing |
+| Camera / payload | Swath, GSD, overlap, trigger spacing, photo count and data volume from altitude + FOV |
+| Briefing sheet | One-page printable brief: metrics, waypoint/leg tables, payload estimate, preflight summary, sign-off block |
+| Playback | Replay along the track by distance or time; live position, altitude, speed and active leg |
+| Dashboard | Mission stats, leg distribution, preflight summary |
+| Other | zh-CN / en UI, light/dark theme, localStorage persistence, shortcuts (<kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>?</kbd> help) |
 
-## 技术栈
+## Pairing with the mavplan CLI
 
-Vue 3（组合式 API + `<script setup>`）、TypeScript、Pinia、Vue Router、Vite；单元测试使用 Vitest，类型检查使用 vue-tsc。
+The console and the Python package share the same files and limits:
 
-## 在线演示
+| File | Console | CLI |
+| --- | --- | --- |
+| Mission JSON / WPL / `.plan` | Import & export | `mavplan mission import`, `Mission.save` |
+| `zones.json` | Import & export | `mavplan mission check --zones-json` |
+| `task.json` (TaskSpec) | Import (applies limits + zones) | `mavplan scenario run --task-out`, `mavplan grade` |
+| Offline HTML preview | — | `mavplan mission preview` |
+
+Install the toolkit, export from the console, then recompute the same plan in a terminal:
+
+```bash
+pip install mavplan
+mavplan mission import mission.json
+mavplan mission check mission.json --zones-json zones.json
+mavplan mission preview mission.json -o mission_preview.html
+```
+
+The **CLI companion** panel on the About and Preflight pages generates these commands for the current mission.
+
+## Tech stack
+
+Vue 3 (Composition API + `<script setup>`), TypeScript, Pinia, Vue Router, Vite. Unit tests with Vitest; types with `vue-tsc`.
+
+## Live demo
 
 <https://tianhengzhuang.github.io/mavplan-web/>
 
-`main` 分支每次推送都会触发 `.github/workflows/demo.yml`：先跑类型检查、单元测试与生产构建，再把 `dist/` 发布到 GitHub Pages。构建使用相对资源路径（`base: './'`），因此同一份产物也能直接放到静态服务器或 U 盘里运行。
+Every push to `main` runs `.github/workflows/demo.yml`: typecheck, unit tests, production build, then publish `dist/` to GitHub Pages. The build uses relative asset paths (`base: './'`), so the same bundle also works from a static server or a USB stick.
 
-## 本地运行
+## Local development
 
 ```bash
 npm install
-npm run dev        # 开发服务器
-npm run build      # 类型检查 + 生产构建（输出 dist/）
-npm run preview    # 预览构建产物
-npm run test       # 单元测试
-npm run typecheck  # 仅类型检查
+npm run dev        # dev server
+npm run build      # typecheck + production build (dist/)
+npm run preview    # preview the production bundle
+npm run test       # unit tests
+npm run typecheck  # types only
 ```
 
-## 目录结构
+## Project layout
 
 ```
 src/
-  core/        纯逻辑层（无框架依赖，可单独测试）
-    geo.ts         距离、方位角、局部平面投影、多边形判定
-    mission.ts     任务模型与 WPL / QGC Plan / KML / CSV 读写
-    pattern.ts     割草机、环绕、多边形扫描图案生成
-    preflight.ts   飞行前检查规则与禁飞区判定
-    flight.ts      航段构建、采样与爬升统计
-    camera.ts      幅宽、GSD、重叠率、拍照间距与数据量
-    actions.ts     MAVLink 命令分类
-    i18n.ts        中英文词条
-  stores/      Pinia 状态（任务、设置）
-  components/  地图、剖面、航点表、航段时间线、动作项、相机、图案、预检、任务收发
-  views/       编辑器、总览、回放、预检、简报、关于
-tests/        core 层与状态层单元测试
+  core/        Pure logic (no framework; unit-testable)
+    geo.ts         Distance, bearing, local ENU projection, polygon tests
+    mission.ts     Mission model + WPL / QGC Plan / KML / CSV I/O
+    pattern.ts     Lawn-mower, orbit, polygon scan generators
+    preflight.ts   Preflight rules and no-fly zone geometry
+    flight.ts      Leg build, sampling, climb statistics
+    camera.ts      Swath, GSD, overlap, trigger spacing, data volume
+    actions.ts     MAV_CMD classification
+    zones.ts       Python-compatible zones.json import/export
+    taskspec.ts    TaskSpec (exam brief) parse + preflight mapping
+    cli.ts         CLI companion command builder
+    i18n.ts        zh-CN / en strings
+  stores/      Pinia stores (mission, settings)
+  components/  Map, profile, waypoint table, timeline, actions, camera, pattern, preflight, I/O, CLI panel
+  views/       Editor, dashboard, playback, preflight, report, about
+tests/         Core and store unit tests
 ```
 
-## 数据格式
+## Data formats
 
-任务文件沿用 QGroundControl 约定：WPL 行以制表符分隔，`seq` 为零基下标，与内部航点数组顺序一致；导出时保留 `frame`、`command`、`autocontinue`、`acceptance_radius`、`orbit`、`yaw` 等字段。
+- **Mission files** follow QGroundControl conventions. WPL lines are tab-separated with zero-based `seq` matching the internal waypoint array. Exports keep `frame`, `command`, `autocontinue`, `acceptance_radius`, `orbit`, and `yaw`.
+- **QGC WPL columns**: `seq, current, frame, command, p1, p2, p3, p4, lat, lon, alt, autocontinue`.
+- **QGC `.plan`**: waypoint position lives in the 7-element `params` array `[p1, p2, p3, p4, lat, lon, alt]` (same as mavplan Python `formats.py`).
+- **Zones JSON**: `{ "zones": [{ "name", "kind", "lat", "lon", "radius_m", "vertices"? }] }` — also accepts a bare array or a single zone object.
+- **TaskSpec JSON**: `version`, `name`, `home`, `required[]`, `altitude_range`, `speed_range`, `max_time_s`, `max_distance_m`, `no_fly_zones[]` — the same document `TaskSpec.to_dict()` writes.
 
-## 许可
+## License
 
-MIT，详见 [LICENSE](LICENSE)。
+MIT — see [LICENSE](LICENSE).
 
 ---
 
@@ -76,7 +111,7 @@ MIT，详见 [LICENSE](LICENSE)。
 Backend pairing with the mavplan Python toolkit (same files, same limits):
 
 - **TaskSpec import** — load a CLI exam brief (`mavplan scenario run --task-out task.json` / `TaskSpec.save()`). Applies home, altitude/speed windows, max distance/time to preflight and merges `no_fly_zones` into the zone list.
-- **Zones JSON import/export** — Python `load_zones_json` layout (`radius_m`, `kind`, `vertices` as `[lat, lon]`, bare list / `{"zones":[...]}`). Export option: 禁飞区 JSON（mavplan）.
+- **Zones JSON import/export** — Python `load_zones_json` layout (`radius_m`, `kind`, `vertices` as `[lat, lon]`, bare list / `{"zones":[...]}`).
 - **Required-checkpoint overlay** — green dashed rings + labels on the editor and preflight maps for TaskSpec `required` points/areas.
 - **CLI companion panel** — paste-ready `pip install` / `mission import` / `mission preview` / `mission check --zones-json` / `grade` commands for the live mission, zones and task.
 - New modules: `src/core/zones.ts`, `src/core/taskspec.ts`, `src/core/cli.ts`.
