@@ -44,8 +44,17 @@ onMounted(() => {
 
       <nav class="tabs">
         <RouterLink to="/" :class="{ active: route.name === 'editor' }">{{ t('nav.editor') }}</RouterLink>
+        <RouterLink to="/dashboard" :class="{ active: route.name === 'dashboard' }">
+          {{ t('nav.dashboard') }}
+        </RouterLink>
+        <RouterLink to="/playback" :class="{ active: route.name === 'playback' }">
+          {{ t('nav.playback') }}
+        </RouterLink>
         <RouterLink to="/preflight" :class="{ active: route.name === 'preflight' }">
           {{ t('nav.preflight') }}
+        </RouterLink>
+        <RouterLink to="/report" :class="{ active: route.name === 'report' }">
+          {{ t('nav.report') }}
         </RouterLink>
         <RouterLink to="/about" :class="{ active: route.name === 'about' }">{{ t('nav.about') }}</RouterLink>
       </nav>

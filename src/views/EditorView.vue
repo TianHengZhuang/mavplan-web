@@ -4,9 +4,13 @@
  * the pattern / IO side panels.
  */
 import { ref } from 'vue'
+import ActionPanel from '../components/ActionPanel.vue'
 import AltitudeProfile from '../components/AltitudeProfile.vue'
+import CameraPanel from '../components/CameraPanel.vue'
+import HomePanel from '../components/HomePanel.vue'
 import MapCanvas from '../components/MapCanvas.vue'
 import MissionIO from '../components/MissionIO.vue'
+import MissionTimeline from '../components/MissionTimeline.vue'
 import PatternPanel from '../components/PatternPanel.vue'
 import PreflightPanel from '../components/PreflightPanel.vue'
 import WaypointTable from '../components/WaypointTable.vue'
@@ -127,10 +131,15 @@ function confirmClear(): void {
         />
 
         <WaypointTable />
+
+        <MissionTimeline />
       </div>
 
       <div class="editor-col side">
         <PreflightPanel mode="summary" />
+        <HomePanel />
+        <ActionPanel />
+        <CameraPanel />
         <PatternPanel />
         <MissionIO />
       </div>
