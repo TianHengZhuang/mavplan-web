@@ -169,3 +169,9 @@ Fixed QGC interop bugs found in review (aligned with mavplan Python `formats.py`
 ---
 
 `mavplan-web` is the browser console companion to the `mavplan` toolkit: waypoint editing, area-coverage pattern generation, preflight checks and mission file import/export. It is a pure client-side Vue 3 + TypeScript application and keeps working offline.
+
+## Related projects
+
+- [mavplan](https://github.com/TianHengZhuang/mavplan) — Python CLI & toolkit (same mission files)
+- [Chinese-WebNovel-Master](https://github.com/TianHengZhuang/Chinese-WebNovel-Master) — Chinese web-fiction agent workflow
+- [One-click-AI-PPT-creation](https://github.com/TianHengZhuang/One-click-AI-PPT-creation) — topic → presentation deck skill
