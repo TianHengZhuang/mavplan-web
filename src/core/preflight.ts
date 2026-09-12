@@ -104,7 +104,8 @@ export function toPreflightJson(
   report: PreflightReport,
   missionName: string,
   waypointCount: number,
-  zoneCount: number
+  zoneCount: number,
+  formatMessage?: (item: CheckItem) => string
 ): {
   schema: string
   mission: { name: string; waypoints: number }
@@ -124,7 +125,7 @@ export function toPreflightJson(
     checks: report.items.map((item) => ({
       code: item.code,
       level: item.level,
-      message: item.code,
+      message: formatMessage ? formatMessage(item) : item.code,
       ...(typeof item.seq === 'number' ? { waypoint: item.seq } : {})
     }))
   }

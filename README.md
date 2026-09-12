@@ -107,6 +107,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.13.1 (2026-09-12)
+
+- Preflight Copy JSON now embeds localized human-readable `message` text (was the raw finding code), matching CLI report readability
+
 ### v1.13.0 (2026-09-12)
 
 - Mission summary: copy a Markdown briefing (metrics table + open issues) to the clipboard

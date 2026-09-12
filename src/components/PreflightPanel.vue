@@ -136,7 +136,8 @@ async function copyPreflightJson(): Promise<void> {
     report.value,
     store.mission.name || 'mission',
     store.waypoints.length,
-    settings.zones.length
+    settings.zones.length,
+    messageOf
   )
   const text = JSON.stringify(payload, null, 2)
   try {

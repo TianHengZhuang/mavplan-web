@@ -33,4 +33,10 @@ describe('toPreflightJson', () => {
     expect(doc.checks[0]).toMatchObject({ code: 'altitude-exceeded', level: 'error', waypoint: 2 })
     expect(doc.checks[1].waypoint).toBeUndefined()
   })
+
+  it('uses formatter messages when provided', () => {
+    const doc = toPreflightJson(report, 'demo', 3, 0, item => `human:${item.code}`)
+    expect(doc.checks[0].message).toBe('human:altitude-exceeded')
+    expect(doc.checks[1].message).toBe('human:battery-low')
+  })
 })
