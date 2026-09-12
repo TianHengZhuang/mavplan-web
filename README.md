@@ -106,6 +106,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.10.3 (2026-09-11)
+
+- Editor: move import/export to the left column under mission summary; right column is now preflight → HOME → actions → camera → patterns only
+
 ### v1.10.2 (2026-09-11)
 
 - Timeline footer: replace the Greek `Σ` prefix with the Chinese label「累计」(English: Total); action flag already uses 有/无

@@ -138,6 +138,8 @@ function confirmClear(): void {
         <MissionTimeline />
 
         <MissionSummary />
+
+        <MissionIO />
       </div>
 
       <div class="editor-col side">
@@ -146,7 +148,6 @@ function confirmClear(): void {
         <ActionPanel />
         <CameraPanel />
         <PatternPanel />
-        <MissionIO />
       </div>
     </div>
   </div>
