@@ -87,11 +87,11 @@ function rtl(): void {
     <div class="panel-body">
       <div class="field-row">
         <div class="field">
-          <label>Latitude</label>
+          <label>{{ t('field.lat') }}</label>
           <input v-model.number="lat" type="number" step="0.000001" />
         </div>
         <div class="field">
-          <label>Longitude</label>
+          <label>{{ t('field.lon') }}</label>
           <input v-model.number="lon" type="number" step="0.000001" />
         </div>
         <div class="field">

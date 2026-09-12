@@ -10,6 +10,7 @@ import CameraPanel from '../components/CameraPanel.vue'
 import HomePanel from '../components/HomePanel.vue'
 import MapCanvas from '../components/MapCanvas.vue'
 import MissionIO from '../components/MissionIO.vue'
+import MissionSummary from '../components/MissionSummary.vue'
 import MissionTimeline from '../components/MissionTimeline.vue'
 import PatternPanel from '../components/PatternPanel.vue'
 import PreflightPanel from '../components/PreflightPanel.vue'
@@ -135,6 +136,8 @@ function confirmClear(): void {
         <WaypointTable />
 
         <MissionTimeline />
+
+        <MissionSummary />
       </div>
 
       <div class="editor-col side">
@@ -177,7 +180,7 @@ function confirmClear(): void {
 
 .editor-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
 }

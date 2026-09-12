@@ -87,12 +87,12 @@ function climbRate(seq: number): string {
             <tr>
               <th>{{ t('editor.seq') }}</th>
               <th>{{ t('editor.command') }}</th>
-              <th>Lat</th>
-              <th>Lon</th>
-              <th>Alt</th>
-              <th>Speed</th>
-              <th>Delay</th>
-              <th>Yaw</th>
+              <th>{{ t('field.lat') }}</th>
+              <th>{{ t('field.lon') }}</th>
+              <th>{{ t('field.alt') }}</th>
+              <th>{{ t('field.speed') }}</th>
+              <th>{{ t('field.delay') }}</th>
+              <th>{{ t('field.yaw') }}</th>
               <th>{{ t('editor.legDistance') }}</th>
               <th>{{ t('editor.bearingFromPrev') }}</th>
               <th>Δalt/s</th>

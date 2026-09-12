@@ -266,13 +266,13 @@ function pick(item: CheckItem): void {
                   :value="zone.name"
                   @input="settings.updateZone(zone.id, { name: ($event.target as HTMLInputElement).value })"
                 />
-                <span class="badge muted mono">{{ zone.kind }}</span>
+                <span class="badge muted mono">{{ zone.kind === 'circle' ? t('preflight.addCircleZone') : t('preflight.addPolygonZone') }}</span>
                 <button class="icon-btn" type="button" @click="settings.removeZone(zone.id)">✕</button>
               </div>
 
               <div v-if="zone.kind === 'circle'" class="field-row">
                 <div class="field">
-                  <label>Lat</label>
+                  <label>{{ t('field.lat') }}</label>
                   <input
                     type="number"
                     step="0.000001"
@@ -281,7 +281,7 @@ function pick(item: CheckItem): void {
                   />
                 </div>
                 <div class="field">
-                  <label>Lon</label>
+                  <label>{{ t('field.lon') }}</label>
                   <input
                     type="number"
                     step="0.000001"

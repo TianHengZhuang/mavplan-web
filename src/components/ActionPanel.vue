@@ -94,7 +94,7 @@ function insert(): void {
             <th>#</th>
             <th>{{ t('editor.command') }}</th>
             <th>{{ t('action.param') }}</th>
-            <th>Position</th>
+            <th>{{ t('action.position') }}</th>
             <th />
           </tr>
         </thead>

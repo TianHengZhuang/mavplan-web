@@ -106,6 +106,11 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.10.1 (2026-09-11)
+
+- Editor layout: left/right columns are now equal width (`1fr / 1fr`); added a mission summary card under the timeline
+- Localised remaining English labels on the editor side panels (waypoint table headers, HOME lat/lon, action position, preflight zone lat/lon and kind, timeline yes/no)
+
 ### v1.10.0 (2026-09-11)
 
 Visual polish pass for the console chrome and layout density:
