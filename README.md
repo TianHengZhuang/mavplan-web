@@ -8,7 +8,7 @@ Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixe
 
 | Module | What it does |
 | --- | --- |
-| Waypoint editor | Add / edit / drag / reorder points on an offline SVG map; lat-lon-alt table editing; automatic resequencing |
+| Waypoint editor | Add / edit / drag / reorder points on an offline SVG map; lat-lon-alt table editing; automatic resequencing; keyboard select / edit / delete |
 | Altitude profile | Climb profile vs cumulative distance; click a point on the profile or map to select the same waypoint |
 | Pattern generators | Lawn-mower (rectangular block by lane spacing), circular orbit, polygon scan (bounding box + area) |
 | Preflight | Altitude / range envelopes, turn radius, circular + polygon no-fly zones (with ceilings), battery and reserve estimates, graded findings |
@@ -105,6 +105,12 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 ## Changelog
+
+### v1.11.0 (2026-09-12)
+
+- Waypoint table keyboard navigation: `↑`/`↓` move selection, `Enter` opens the first editable field, `Delete`/`Backspace` removes the selected row (ignored while typing)
+- Table wrap is focusable (`tabindex=0`) with a tooltip hint in zh-CN / en
+- First formal GitHub Release for this console (v1.10.x work is included since v1.9)
 
 ### v1.10.4 (2026-09-11)
 

@@ -2,8 +2,11 @@
 /**
  * Waypoint table — every column is editable in place and changes are written
  * straight back into the mission store, which persists to localStorage.
+ *
+ * Keyboard: ↑/↓ move selection, Enter edits the first field, Delete removes
+ * the selected row (ignored while a form control has focus).
  */
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import {
   DO_SET_CAM_TRIGG_DIST,
   DO_SET_CAM_TRIGG_INTERVAL,
@@ -18,6 +21,7 @@ import { t } from '../core/i18n'
 import { useMissionStore } from '../stores/mission'
 
 const store = useMissionStore()
+const tableWrap = ref<HTMLElement | null>(null)
 
 const commandChoices = computed(() =>
   SELECTABLE_COMMANDS.map((value) => ({ value, label: commandName(value), action: isAction(value) }))
@@ -57,6 +61,63 @@ function climbRate(seq: number): string {
   if (!leg || seq === 0) return '—'
   return `${leg.climbRate >= 0 ? '+' : ''}${leg.climbRate.toFixed(1)}`
 }
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  return tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || target.isContentEditable
+}
+
+function scrollRowIntoView(seq: number): void {
+  void nextTick(() => {
+    const row = tableWrap.value?.querySelector<HTMLTableRowElement>(`tr[data-seq="${seq}"]`)
+    row?.scrollIntoView({ block: 'nearest' })
+  })
+}
+
+function selectRelative(delta: number): void {
+  if (!store.waypoints.length) return
+  const seqs = store.waypoints.map((wp) => wp.seq)
+  const index = seqs.indexOf(store.selectedSeq)
+  const nextIndex = index === -1 ? (delta > 0 ? 0 : seqs.length - 1) : Math.min(seqs.length - 1, Math.max(0, index + delta))
+  store.selectedSeq = seqs[nextIndex]
+  scrollRowIntoView(store.selectedSeq)
+}
+
+function focusSelectedField(): void {
+  void nextTick(() => {
+    const row = tableWrap.value?.querySelector<HTMLTableRowElement>(`tr[data-seq="${store.selectedSeq}"]`)
+    const field = row?.querySelector<HTMLInputElement | HTMLSelectElement>('input:not([disabled]), select:not([disabled])')
+    field?.focus()
+  })
+}
+
+function deleteSelected(): void {
+  if (store.selectedSeq == null || !store.waypoints.some((wp) => wp.seq === store.selectedSeq)) return
+  store.removeWaypoint(store.selectedSeq)
+  store.statusMessage = ''
+  scrollRowIntoView(store.selectedSeq)
+}
+
+function onTableKeydown(event: KeyboardEvent): void {
+  if (event.altKey || event.ctrlKey || event.metaKey) return
+  const typing = isTypingTarget(event.target)
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    if (typing) return
+    event.preventDefault()
+    selectRelative(event.key === 'ArrowUp' ? -1 : 1)
+    return
+  }
+  if (event.key === 'Enter' && !typing) {
+    event.preventDefault()
+    focusSelectedField()
+    return
+  }
+  if ((event.key === 'Delete' || event.key === 'Backspace') && !typing) {
+    event.preventDefault()
+    deleteSelected()
+  }
+}
 </script>
 
 <template>
@@ -81,7 +142,14 @@ function climbRate(seq: number): string {
     <div class="panel-body tight">
       <div v-if="!store.stats.count" class="empty">{{ t('editor.noWaypoints') }}</div>
 
-      <div v-else class="table-wrap">
+      <div
+        v-else
+        ref="tableWrap"
+        class="table-wrap"
+        tabindex="0"
+        :title="t('editor.keyboardHint')"
+        @keydown="onTableKeydown"
+      >
         <table>
           <thead>
             <tr>
@@ -103,6 +171,7 @@ function climbRate(seq: number): string {
             <tr
               v-for="wp in store.waypoints"
               :key="wp.seq"
+              :data-seq="wp.seq"
               :class="{ selected: wp.seq === store.selectedSeq, 'action-item': !isNavigable(wp.command) }"
               @click="store.selectedSeq = wp.seq"
             >
