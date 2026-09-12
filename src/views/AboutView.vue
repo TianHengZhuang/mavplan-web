@@ -44,7 +44,7 @@ const shortcuts = [
     <section class="panel">
       <div class="panel-head">
         <h3>{{ t('about.title') }}</h3>
-        <span class="badge muted mono">v1.10.3</span>
+        <span class="badge muted mono">v1.10.4</span>
         <span class="badge muted mono">MIT</span>
       </div>
       <div class="panel-body">

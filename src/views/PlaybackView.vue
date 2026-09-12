@@ -149,11 +149,11 @@ onBeforeUnmount(stop)
             <div class="value">#{{ activeLeg?.fromSeq }} → #{{ activeLeg?.toSeq }}</div>
           </div>
           <div class="stat">
-            <div class="label">Latitude</div>
+            <div class="label">{{ t('field.lat') }}</div>
             <div class="value">{{ formatCoord(sample.lat) }}</div>
           </div>
           <div class="stat">
-            <div class="label">Longitude</div>
+            <div class="label">{{ t('field.lon') }}</div>
             <div class="value">{{ formatCoord(sample.lon) }}</div>
           </div>
           <div class="stat">

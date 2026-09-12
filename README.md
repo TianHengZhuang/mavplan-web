@@ -106,6 +106,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.10.4 (2026-09-11)
+
+- Playback: Latitude / Longitude labels use Chinese (纬度 / 经度)
+
 ### v1.10.3 (2026-09-11)
 
 - Editor: move import/export to the left column under mission summary; right column is now preflight → HOME → actions → camera → patterns only
