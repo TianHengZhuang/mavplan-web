@@ -101,7 +101,7 @@ function focus(seq: number): void {
             </span>
           </span>
           <span class="foot mono">
-            Σ {{ formatDistance(leg.cumulativeM) }} · {{ t('editor.actionItem') }}
+            {{ t('timeline.cumulative') }} {{ formatDistance(leg.cumulativeM) }} · {{ t('editor.actionItem') }}
             {{ store.waypoints[leg.index] && !isNavigable(store.waypoints[leg.index].command) ? t('common.yes') : t('common.no') }}
           </span>
         </button>

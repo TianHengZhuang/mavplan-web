@@ -1,7 +1,7 @@
 {
   "name": "mavplan-web",
   "private": true,
-  "version": "1.10.1",
+  "version": "1.10.2",
   "type": "module",
   "description": "Offline-capable web console for mavplan: mission editor, pattern generator, preflight console and report viewer.",
   "scripts": {

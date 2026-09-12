@@ -106,6 +106,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.10.2 (2026-09-11)
+
+- Timeline footer: replace the Greek `Σ` prefix with the Chinese label「累计」(English: Total); action flag already uses 有/无
+
 ### v1.10.1 (2026-09-11)
 
 - Editor layout: left/right columns are now equal width (`1fr / 1fr`); added a mission summary card under the timeline
