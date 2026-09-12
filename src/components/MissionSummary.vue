@@ -3,8 +3,9 @@
  * Compact mission readiness card for the editor left column — fills the
  * vertical gap under the timeline with the same numbers the dashboard uses.
  */
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import { buildBriefingMarkdown } from '../core/briefing'
 import { formatDistance, formatDuration } from '../core/geo'
 import { t } from '../core/i18n'
 import { useMissionStore } from '../stores/mission'
@@ -18,6 +19,31 @@ const altitudeOk = computed(
 )
 const zoneCount = computed(() => settings.zones.length)
 const taskName = computed(() => settings.taskBrief?.name ?? '')
+
+const copyState = ref<'idle' | 'ok' | 'fail'>('idle')
+
+async function copyBriefing(): Promise<void> {
+  const markdown = buildBriefingMarkdown({
+    name: store.mission.name || 'Mission',
+    waypointCount: store.stats.count,
+    distanceLabel: formatDistance(store.stats.distanceM),
+    durationLabel: formatDuration(store.stats.durationS),
+    maxAltitudeM: store.stats.maxAltitudeM,
+    zoneCount: zoneCount.value,
+    altitudeOverLimit: altitudeOk.value,
+    taskBriefName: taskName.value,
+    issues: store.issues
+  })
+  try {
+    await navigator.clipboard.writeText(markdown)
+    copyState.value = 'ok'
+  } catch {
+    copyState.value = 'fail'
+  }
+  window.setTimeout(() => {
+    copyState.value = 'idle'
+  }, 2000)
+}
 </script>
 
 <template>
@@ -28,6 +54,15 @@ const taskName = computed(() => settings.taskBrief?.name ?? '')
         {{ store.issues.length ? t('summary.needFix', { n: store.issues.length }) : t('summary.ready') }}
       </span>
       <div class="header-spacer" style="flex: 1" />
+      <button class="btn small ghost" type="button" @click="copyBriefing">
+        {{
+          copyState === 'ok'
+            ? t('summary.copyBriefingOk')
+            : copyState === 'fail'
+              ? t('summary.copyBriefingFail')
+              : t('summary.copyBriefing')
+        }}
+      </button>
       <RouterLink class="btn small" to="/preflight">{{ t('summary.openPreflight') }}</RouterLink>
       <RouterLink class="btn small ghost" to="/report">{{ t('summary.openReport') }}</RouterLink>
     </div>

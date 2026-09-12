@@ -9,6 +9,7 @@ Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixe
 | Module | What it does |
 | --- | --- |
 | Waypoint editor | Add / edit / drag / reorder points on an offline SVG map; lat-lon-alt table editing; automatic resequencing; keyboard select / edit / delete |
+| Mission summary | Readiness metrics + copy Markdown briefing for hand-off |
 | Altitude profile | Climb profile vs cumulative distance; click a point on the profile or map to select the same waypoint |
 | Pattern generators | Lawn-mower (rectangular block by lane spacing), circular orbit, polygon scan (bounding box + area) |
 | Preflight | Altitude / range envelopes, turn radius, circular + polygon no-fly zones (with ceilings), battery and reserve estimates, graded findings |
@@ -105,6 +106,11 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 ## Changelog
+
+### v1.13.0 (2026-09-12)
+
+- Mission summary: copy a Markdown briefing (metrics table + open issues) to the clipboard
+- zh-CN / en labels for the copy action
 
 ### v1.12.0 (2026-09-12)
 
