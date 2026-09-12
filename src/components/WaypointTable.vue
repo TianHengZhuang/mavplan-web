@@ -11,6 +11,7 @@ import {
   DO_SET_CAM_TRIGG_DIST,
   DO_SET_CAM_TRIGG_INTERVAL,
   SELECTABLE_COMMANDS,
+  commandLabel,
   commandName,
   isAction,
   isNavigable
@@ -24,7 +25,12 @@ const store = useMissionStore()
 const tableWrap = ref<HTMLElement | null>(null)
 
 const commandChoices = computed(() =>
-  SELECTABLE_COMMANDS.map((value) => ({ value, label: commandName(value), action: isAction(value) }))
+  SELECTABLE_COMMANDS.map((value) => ({
+    value,
+    label: commandLabel(value, t),
+    technical: commandName(value),
+    action: isAction(value)
+  }))
 )
 
 const actionChoices = computed(() => commandChoices.value.filter((item) => item.action))
@@ -129,10 +135,10 @@ function onTableKeydown(event: KeyboardEvent): void {
       <span class="badge muted mono">{{ t('editor.actionItem') }} {{ store.stats.actions }}</span>
       <div class="header-spacer" style="flex: 1" />
       <button class="btn small" type="button" @click="store.addLandingWaypoint()" :disabled="!store.stats.count">
-        + {{ commandName(21) }}
+        + {{ commandLabel(21, t) }}
       </button>
       <button class="btn small" type="button" @click="store.addReturnToLaunch()" :disabled="!store.stats.count">
-        + {{ commandName(20) }}
+        + {{ commandLabel(20, t) }}
       </button>
       <button class="btn small danger" type="button" @click="confirmClear" :disabled="!store.stats.count">
         {{ t('editor.clear') }}
@@ -181,8 +187,8 @@ function onTableKeydown(event: KeyboardEvent): void {
               </td>
               <td class="cell-command">
                 <select v-model.number="wp.command">
-                  <option v-for="choice in commandChoices" :key="choice.value" :value="choice.value">
-                    {{ choice.value }} · {{ choice.label }}
+                  <option v-for="choice in commandChoices" :key="choice.value" :value="choice.value" :title="choice.technical">
+                    {{ choice.label }}
                   </option>
                 </select>
               </td>

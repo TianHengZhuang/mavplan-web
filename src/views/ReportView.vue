@@ -13,7 +13,7 @@
  */
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { commandName, isNavigable } from '../core/actions'
+import { commandLabel, isNavigable } from '../core/actions'
 import {
   DEFAULT_PHOTO_MB,
   dataVolumeGb,
@@ -122,7 +122,7 @@ const briefingText = computed(() => {
   lines.push(`[${t('report.section.waypoints')}]`)
   store.waypoints.forEach((wp, index) => {
     lines.push(
-      `${index + 1}. ${commandName(wp.command)} ${formatCoord(wp.lat)}, ${formatCoord(
+      `${index + 1}. ${commandLabel(wp.command, t)} ${formatCoord(wp.lat)}, ${formatCoord(
         wp.lon
       )} ${wp.alt.toFixed(0)}m ${wp.speed.toFixed(1)}m/s`
     )
@@ -247,7 +247,7 @@ function printSheet(): void {
           <tbody>
             <tr v-for="(wp, index) in store.waypoints" :key="wp.seq" :class="{ action: !isNavigable(wp.command) }">
               <td class="mono">{{ index + 1 }}</td>
-              <td class="mono">{{ commandName(wp.command) }}</td>
+              <td class="mono">{{ commandLabel(wp.command, t) }}</td>
               <td class="mono">{{ formatCoord(wp.lat) }}</td>
               <td class="mono">{{ formatCoord(wp.lon) }}</td>
               <td class="mono">{{ wp.alt.toFixed(0) }}</td>

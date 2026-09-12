@@ -93,6 +93,18 @@ export function commandName(command: number): string {
   return COMMAND_NAMES[command] ?? `MAV_CMD_${command}`
 }
 
+/**
+ * Localized display name for a MAV_CMD. Falls back to the technical
+ * `DO_*` / `NAV_*` token when the locale table has no entry.
+ */
+export function commandLabel(command: number, translate: (key: string) => string): string {
+  const technical = commandName(command)
+  const key = `action.cmd.${technical}`
+  const label = translate(key)
+  if (!label || label === key) return technical
+  return label
+}
+
 /** True for DO_* action items, false for NAV_* navigation items. */
 export function isAction(command: number): boolean {
   return command >= ACTION_RANGE_START

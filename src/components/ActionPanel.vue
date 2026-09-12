@@ -12,6 +12,7 @@ import {
   DO_SET_CAM_TRIGG_DIST,
   DO_SET_CAM_TRIGG_INTERVAL,
   SELECTABLE_COMMANDS,
+  commandLabel,
   commandName,
   isNavigable
 } from '../core/actions'
@@ -47,7 +48,7 @@ const rows = computed<ActionRow[]>(() =>
       index,
       seq: wp.seq,
       command: wp.command,
-      name: commandName(wp.command),
+      name: commandLabel(wp.command, t),
       value: wp.delay,
       lat: wp.lat,
       lon: wp.lon,
@@ -83,7 +84,7 @@ function insert(): void {
       <h3>{{ t('action.title') }}</h3>
       <span class="badge muted mono">{{ rows.length }} / {{ store.waypoints.length }}</span>
       <div class="header-spacer" style="flex: 1" />
-      <span class="badge muted mono">{{ commandName(commandDraft) }}</span>
+      <span class="badge muted mono">{{ commandLabel(commandDraft, t) }}</span>
     </div>
 
     <div class="panel-body">
@@ -140,8 +141,13 @@ function insert(): void {
         <div class="field inline">
           <label>{{ t('editor.insertAction') }}</label>
           <select v-model.number="draftCommand">
-            <option v-for="command in actionCommands" :key="command" :value="command">
-              {{ commandName(command) }}
+            <option
+              v-for="command in actionCommands"
+              :key="command"
+              :value="command"
+              :title="commandName(command)"
+            >
+              {{ commandLabel(command, t) }}
             </option>
           </select>
         </div>

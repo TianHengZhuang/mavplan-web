@@ -10,7 +10,7 @@ import { computed, ref } from 'vue'
 import {
   DO_SET_CAM_TRIGG_DIST,
   DO_SET_CAM_TRIGG_INTERVAL,
-  commandName
+  commandLabel
 } from '../core/actions'
 import {
   dataVolumeGb,
@@ -169,7 +169,7 @@ function triggerValue(command: number): string {
         <div class="sub-title">{{ t('camera.existing') }}</div>
         <ul>
           <li v-for="wp in existing" :key="wp.seq" class="mono">
-            #{{ wp.seq }} · {{ commandName(wp.command) }} ·
+            #{{ wp.seq }} · {{ commandLabel(wp.command, t) }} ·
             {{ wp.command === DO_SET_CAM_TRIGG_DIST ? t('camera.byDistance') : t('camera.byTime') }}
             {{ triggerValue(wp.command) }}
           </li>

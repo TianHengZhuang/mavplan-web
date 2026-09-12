@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DO_SET_HOME,
   NAV_WAYPOINT,
+  commandLabel,
   commandName,
   isAction,
   isNavigable
@@ -375,5 +376,16 @@ describe('command catalogue', () => {
     expect(isAction(NAV_WAYPOINT)).toBe(false)
     expect(isNavigable(NAV_WAYPOINT)).toBe(true)
     expect(commandName(NAV_WAYPOINT).length).toBeGreaterThan(0)
+  })
+
+  it('commandLabel falls back to the technical token when unmapped', () => {
+    const identity = (key: string) => key
+    expect(commandLabel(NAV_WAYPOINT, identity)).toBe('NAV_WAYPOINT')
+  })
+
+  it('commandLabel uses the locale string when present', () => {
+    const zh = (key: string) =>
+      key === 'action.cmd.NAV_WAYPOINT' ? '航点' : key
+    expect(commandLabel(NAV_WAYPOINT, zh)).toBe('航点')
   })
 })

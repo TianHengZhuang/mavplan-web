@@ -107,6 +107,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.14.2 (2026-09-12)
+
+- MAV_CMD names in the UI follow the locale (e.g. 按距离触发相机 / Camera trigger by distance); technical `DO_*` / `NAV_*` tokens remain on hover and as fallback
+
 ### v1.14.1 (2026-09-12)
 
 - Sample mission retargeted to Yunlong Lake (云龙湖), Xuzhou, Jiangsu (`江苏徐州 云龙湖`, HOME 34.2472, 117.1856)
