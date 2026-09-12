@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
+import ShortcutHelp from './components/ShortcutHelp.vue'
 import { useMissionStore } from './stores/mission'
 import { useSettingsStore } from './stores/settings'
 import { formatDistance } from './core/geo'
@@ -10,6 +11,7 @@ const missionStore = useMissionStore()
 const settings = useSettingsStore()
 const route = useRoute()
 const theme = ref<'light' | 'dark'>('light')
+const helpOpen = ref(false)
 
 function applyTheme(next: 'light' | 'dark'): void {
   theme.value = next
@@ -18,6 +20,38 @@ function applyTheme(next: 'light' | 'dark'): void {
     localStorage.setItem('mavplan-web.theme', next)
   } catch {
     /* ignore */
+  }
+}
+
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false
+  const tag = target.tagName
+  return tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || target.isContentEditable
+}
+
+function onGlobalKeydown(event: KeyboardEvent): void {
+  const typing = isTypingTarget(event.target)
+  if (event.key === '?' && !typing) {
+    event.preventDefault()
+    helpOpen.value = !helpOpen.value
+    return
+  }
+  if (event.key === 'Escape' && helpOpen.value) {
+    event.preventDefault()
+    helpOpen.value = false
+    return
+  }
+  const mod = event.ctrlKey || event.metaKey
+  if (!mod || typing) return
+  const key = event.key.toLowerCase()
+  if (key === 'z' && !event.shiftKey) {
+    event.preventDefault()
+    missionStore.undo()
+    return
+  }
+  if ((key === 'z' && event.shiftKey) || key === 'y') {
+    event.preventDefault()
+    missionStore.redo()
   }
 }
 
@@ -32,6 +66,11 @@ onMounted(() => {
   const preferred =
     stored ?? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   applyTheme(preferred)
+  window.addEventListener('keydown', onGlobalKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onGlobalKeydown)
 })
 </script>
 
@@ -75,6 +114,10 @@ onMounted(() => {
           <span aria-hidden="true">{{ theme === 'dark' ? '☾' : '☀' }}</span>
         </label>
 
+        <button class="btn small ghost" type="button" :title="t('shortcuts.title')" @click="helpOpen = true">
+          ?
+        </button>
+
         <button class="btn small ghost" type="button" @click="settings.toggleLocale()">
           {{ settings.locale === 'zh-CN' ? 'EN' : '中文' }}
         </button>
@@ -84,5 +127,7 @@ onMounted(() => {
     <main class="content">
       <RouterView />
     </main>
+
+    <ShortcutHelp :open="helpOpen" @close="helpOpen = false" />
   </div>
 </template>

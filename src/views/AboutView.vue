@@ -33,9 +33,10 @@ const features = [
 ]
 
 const shortcuts = [
-  { keys: 'Ctrl / ⌘ + Z', zh: '撤销上一步（浏览器原生）', en: 'Undo (browser native)' },
-  { keys: '?', zh: '本页', en: 'This page' },
-  { keys: 'G', zh: '回到任务编辑', en: 'Back to the editor' }
+  { keys: '?', zh: '打开快捷键帮助浮层', en: 'Open the shortcut help overlay' },
+  { keys: '↑ / ↓ · Enter · Delete', zh: '航点表选择 / 编辑 / 删除', en: 'Waypoint table select / edit / delete' },
+  { keys: 'Ctrl / ⌘ + Z', zh: '撤销任务结构变更', en: 'Undo mission structure changes' },
+  { keys: 'Ctrl / ⌘ + Shift + Z / Y', zh: '重做', en: 'Redo' }
 ]
 </script>
 
@@ -44,7 +45,7 @@ const shortcuts = [
     <section class="panel">
       <div class="panel-head">
         <h3>{{ t('about.title') }}</h3>
-        <span class="badge muted mono">v1.10.4</span>
+        <span class="badge muted mono">v1.14.0</span>
         <span class="badge muted mono">MIT</span>
       </div>
       <div class="panel-body">

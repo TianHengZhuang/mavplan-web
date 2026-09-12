@@ -41,6 +41,7 @@ export interface ImportResult {
 }
 
 const STORAGE_KEY = 'mavplan-web.mission'
+const HISTORY_LIMIT = 50
 
 function loadInitial(): MissionDoc {
   try {
@@ -52,11 +53,18 @@ function loadInitial(): MissionDoc {
   return sampleMission()
 }
 
+function cloneMission(doc: MissionDoc): MissionDoc {
+  return fromDict(JSON.parse(JSON.stringify(toDict(doc))) as Record<string, unknown>)
+}
+
 export const useMissionStore = defineStore('mission', () => {
   const mission = ref<MissionDoc>(loadInitial())
   const selectedSeq = ref<number>(0)
   const dirty = ref(false)
   const statusMessage = ref('')
+  const undoStack = ref<MissionDoc[]>([])
+  const redoStack = ref<MissionDoc[]>([])
+  let suppressHistory = false
 
   watch(
     mission,
@@ -70,6 +78,44 @@ export const useMissionStore = defineStore('mission', () => {
     },
     { deep: true }
   )
+
+  function pushHistory(): void {
+    if (suppressHistory) return
+    undoStack.value.push(cloneMission(mission.value))
+    if (undoStack.value.length > HISTORY_LIMIT) {
+      undoStack.value.shift()
+    }
+    redoStack.value = []
+  }
+
+  function applySnapshot(next: MissionDoc): void {
+    suppressHistory = true
+    mission.value = next
+    reselect(
+      Math.min(selectedSeq.value, Math.max(0, next.waypoints.length - 1))
+    )
+    suppressHistory = false
+  }
+
+  function undo(): boolean {
+    if (!undoStack.value.length) return false
+    redoStack.value.push(cloneMission(mission.value))
+    const previous = undoStack.value.pop()
+    if (!previous) return false
+    applySnapshot(previous)
+    statusMessage.value = 'undo'
+    return true
+  }
+
+  function redo(): boolean {
+    if (!redoStack.value.length) return false
+    undoStack.value.push(cloneMission(mission.value))
+    const next = redoStack.value.pop()
+    if (!next) return false
+    applySnapshot(next)
+    statusMessage.value = 'redo'
+    return true
+  }
 
   const waypoints = computed(() => mission.value.waypoints)
   const stats = computed(() => missionStats(mission.value.waypoints))
@@ -112,6 +158,7 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function addWaypoint(lat: number, lon: number, alt?: number, speed?: number): Waypoint {
+    pushHistory()
     const previous = mission.value.waypoints[mission.value.waypoints.length - 1]
     const waypoint = createWaypoint({
       lat,
@@ -132,6 +179,7 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function removeWaypoint(seq: number): void {
+    pushHistory()
     mission.value.waypoints.splice(seq, 1)
     resequence(mission.value.waypoints)
     reselect(seq > 0 ? seq - 1 : 0)
@@ -141,6 +189,7 @@ export const useMissionStore = defineStore('mission', () => {
     const target = seq + delta
     const list = mission.value.waypoints
     if (target < 0 || target >= list.length) return
+    pushHistory()
     const [item] = list.splice(seq, 1)
     list.splice(target, 0, item)
     resequence(list)
@@ -150,22 +199,26 @@ export const useMissionStore = defineStore('mission', () => {
   function duplicateWaypoint(seq: number): void {
     const source = mission.value.waypoints[seq]
     if (!source) return
+    pushHistory()
     mission.value.waypoints.splice(seq + 1, 0, createWaypoint({ ...source, seq: seq + 1 }))
     resequence(mission.value.waypoints)
     selectedSeq.value = seq + 1
   }
 
   function insertAction(seq: number, command: number, param1 = 0): void {
+    pushHistory()
     mission.value.waypoints = addActionAfter(mission.value.waypoints, seq, command, param1)
   }
 
   function insertCameraTrigger(seq: number, mode: 'distance' | 'time', value: number): void {
+    pushHistory()
     mission.value.waypoints = addCameraTrigger(mission.value.waypoints, seq, mode, value)
   }
 
   function addLandingWaypoint(): void {
     const last = mission.value.waypoints[mission.value.waypoints.length - 1]
     if (!last) return
+    pushHistory()
     mission.value.waypoints.push(
       createWaypoint({
         lat: last.lat,
@@ -182,6 +235,7 @@ export const useMissionStore = defineStore('mission', () => {
   function addReturnToLaunch(): void {
     const first = mission.value.waypoints[0]
     if (!first) return
+    pushHistory()
     mission.value.waypoints.push(
       createWaypoint({
         lat: first.lat,
@@ -196,11 +250,13 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function replaceWaypoints(list: Waypoint[]): void {
+    pushHistory()
     mission.value.waypoints = resequence(list.map((wp) => createWaypoint(wp)))
     reselect(0)
   }
 
   function appendWaypoints(list: Waypoint[]): void {
+    pushHistory()
     const offset = mission.value.waypoints.length
     list.forEach((wp, index) => {
       mission.value.waypoints.push(createWaypoint({ ...wp, seq: offset + index }))
@@ -209,6 +265,7 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function clear(keepName = true): void {
+    pushHistory()
     mission.value.waypoints = []
     mission.value.home = null
     if (!keepName) mission.value.name = 'Untitled Mission'
@@ -216,18 +273,21 @@ export const useMissionStore = defineStore('mission', () => {
   }
 
   function loadSample(): void {
+    pushHistory()
     mission.value = sampleMission()
     reselect(0)
     statusMessage.value = ''
   }
 
   function setHome(lat: number, lon: number, alt = 0): void {
+    pushHistory()
     mission.value.home = [lat, lon, alt]
   }
 
   function setHomeFrom(seq: number): void {
     const wp = mission.value.waypoints[seq]
     if (!wp) return
+    pushHistory()
     mission.value.home = [wp.lat, wp.lon, 0]
   }
 
@@ -238,6 +298,7 @@ export const useMissionStore = defineStore('mission', () => {
   function importText(text: string, filename = 'mission'): ImportResult {
     try {
       const { mission: parsed, format } = parseMissionText(text)
+      pushHistory()
       mission.value = { ...parsed, name: parsed.name || filename.replace(/\.[^.]+$/, '') }
       reselect(0)
       return { ok: true, message: '', format, count: parsed.waypoints.length }
@@ -289,6 +350,9 @@ export const useMissionStore = defineStore('mission', () => {
     () => mission.value.waypoints.filter((wp) => isNavigable(wp.command)).length
   )
 
+  const canUndo = computed(() => undoStack.value.length > 0)
+  const canRedo = computed(() => redoStack.value.length > 0)
+
   const yawUnconstrained = YAW_UNCONSTRAINED
   const defaultCommand = NAV_WAYPOINT
 
@@ -306,6 +370,8 @@ export const useMissionStore = defineStore('mission', () => {
     statusMessage,
     dirty,
     navigableCount,
+    canUndo,
+    canRedo,
     yawUnconstrained,
     defaultCommand,
     addWaypoint,
@@ -326,6 +392,8 @@ export const useMissionStore = defineStore('mission', () => {
     setName,
     importText,
     exportPayload,
+    undo,
+    redo,
     createMission
   }
 })

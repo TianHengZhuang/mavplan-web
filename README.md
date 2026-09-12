@@ -24,7 +24,7 @@ Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixe
 | Briefing sheet | One-page printable brief: metrics, waypoint/leg tables, payload estimate, preflight summary, sign-off block |
 | Playback | Replay along the track by distance or time; live position, altitude, speed and active leg |
 | Dashboard | Mission stats, leg distribution, preflight summary |
-| Other | zh-CN / en UI, light/dark theme, localStorage persistence, shortcuts (<kbd>Ctrl</kbd>+<kbd>Z</kbd> undo, <kbd>?</kbd> help) |
+| Other | zh-CN / en UI, light/dark theme, localStorage persistence, shortcuts (<kbd>Ctrl</kbd>+<kbd>Z</kbd> mission undo, <kbd>?</kbd> help overlay) |
 
 ## Pairing with the mavplan CLI
 
@@ -106,6 +106,13 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 ## Changelog
+
+### v1.14.0 (2026-09-12)
+
+- Mission undo / redo stack (50 steps): add / remove / move / duplicate, actions, clear, import, HOME
+- `Ctrl`/`⌘`+`Z` undo, `Ctrl`/`⌘`+`Shift`+`Z` or `Y` redo (ignored while typing in a field)
+- `?` opens a global keyboard shortcut overlay (also a `?` button in the header); `Esc` closes
+- About page shortcut table matches the real bindings
 
 ### v1.13.1 (2026-09-12)
 
