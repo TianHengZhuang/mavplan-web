@@ -32,20 +32,22 @@ const mapRef = ref<InstanceType<typeof MapCanvas> | null>(null)
           </button>
         </div>
         <div class="panel-body tight">
-          <MapCanvas
-            ref="mapRef"
-            :waypoints="store.waypoints"
-            :home="store.home"
-            :zones="settings.zones"
-            :required="settings.taskBrief?.required ?? []"
-            :selected-seq="store.selectedSeq"
-            :show-tiles="settings.showTiles"
-            :show-grid="settings.showGrid"
-            :show-labels="settings.showLabels"
-            :show-zones="settings.showZones"
-            :armed="false"
-            @select="store.selectedSeq = $event"
-          />
+          <div class="map-host">
+            <MapCanvas
+              ref="mapRef"
+              :waypoints="store.waypoints"
+              :home="store.home"
+              :zones="settings.zones"
+              :required="settings.taskBrief?.required ?? []"
+              :selected-seq="store.selectedSeq"
+              :show-tiles="settings.showTiles"
+              :show-grid="settings.showGrid"
+              :show-labels="settings.showLabels"
+              :show-zones="settings.showZones"
+              :armed="false"
+              @select="store.selectedSeq = $event"
+            />
+          </div>
         </div>
       </div>
 

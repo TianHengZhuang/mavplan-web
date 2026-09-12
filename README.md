@@ -106,6 +106,18 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.10.0 (2026-09-11)
+
+Visual polish pass for the console chrome and layout density:
+
+- **Design tokens** — tighter type scale, refined light/dark palettes, stronger contrast on headings and controls, softer panel chrome
+- **App shell** — compact sticky header (brand + tabs + mission meta), backdrop blur, sun/moon theme toggle, cleaner nav pill
+- **Panels & tables** — clearer section headers, selected-row accent bar, quieter inline table inputs, uppercase micro-labels
+- **Controls** — consistent button hierarchy (primary / danger / ghost), focus rings, denser fields
+- **Editor / preflight map** — framed map host, aligned mission bar metrics
+- **index.html** — SVG app icon and theme-color
+- Print stylesheet: hide chrome, flatten panels
+
 ### v1.9.1 (2026-09-11)
 
 - Fixed: mission import now accepts files saved with a UTF-8 BOM (`sniffFormat` / `parseWpl` / `parseQgcPlan` / `parseMissionText`), matching PowerShell `Set-Content -Encoding utf8` output and mavplan Python v1.7.2.

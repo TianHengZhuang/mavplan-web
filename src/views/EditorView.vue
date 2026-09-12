@@ -46,12 +46,11 @@ function confirmClear(): void {
   <div class="view">
     <section class="panel mission-bar">
       <div class="mission-meta">
-        <div class="field">
+        <div class="field" style="min-width: 220px; flex: 0 1 260px">
           <label>{{ t('editor.missionName') }}</label>
           <input
             type="text"
             :value="store.mission.name"
-            style="min-width: 240px"
             @input="store.setName(($event.target as HTMLInputElement).value)"
           />
         </div>
@@ -102,22 +101,24 @@ function confirmClear(): void {
             </label>
           </div>
           <div class="panel-body tight">
-            <MapCanvas
-              ref="mapRef"
-              :waypoints="store.waypoints"
-              :home="store.home"
-              :zones="settings.zones"
-              :required="settings.taskBrief?.required ?? []"
-              :selected-seq="store.selectedSeq"
-              :show-tiles="settings.showTiles"
-              :show-grid="settings.showGrid"
-              :show-labels="settings.showLabels"
-              :show-zones="settings.showZones"
-              :armed="armed"
-              @add-waypoint="onAddWaypoint"
-              @select="store.selectedSeq = $event"
-              @move-waypoint="onMoveWaypoint"
-            />
+            <div class="map-host">
+              <MapCanvas
+                ref="mapRef"
+                :waypoints="store.waypoints"
+                :home="store.home"
+                :zones="settings.zones"
+                :required="settings.taskBrief?.required ?? []"
+                :selected-seq="store.selectedSeq"
+                :show-tiles="settings.showTiles"
+                :show-grid="settings.showGrid"
+                :show-labels="settings.showLabels"
+                :show-zones="settings.showZones"
+                :armed="armed"
+                @add-waypoint="onAddWaypoint"
+                @select="store.selectedSeq = $event"
+                @move-waypoint="onMoveWaypoint"
+              />
+            </div>
             <p class="hint">
               {{ armed ? t('editor.addHereHint') : t('editor.panHint') }} · {{ t('editor.selected') }}:
               #{{ store.selectedSeq }}
@@ -151,24 +152,32 @@ function confirmClear(): void {
 <style scoped>
 .mission-bar {
   display: flex;
-  align-items: flex-end;
-  gap: 14px;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
   padding: 10px 12px;
-  margin-bottom: 12px;
 }
 
 .mission-meta {
   display: flex;
-  align-items: flex-end;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
   flex-wrap: wrap;
   flex: 1;
+  min-width: 0;
+}
+
+.mission-meta .field {
+  flex: 0 1 260px;
+}
+
+.mission-meta .field input {
+  font-weight: 500;
 }
 
 .editor-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 400px);
   gap: 12px;
   align-items: start;
 }
@@ -182,7 +191,7 @@ function confirmClear(): void {
 
 .hint {
   margin: 6px 2px 0;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--muted);
 }
 

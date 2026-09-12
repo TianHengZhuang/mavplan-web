@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useMissionStore } from './stores/mission'
 import { useSettingsStore } from './stores/settings'
+import { formatDistance } from './core/geo'
 import { t } from './core/i18n'
 
 const missionStore = useMissionStore()
@@ -38,7 +39,7 @@ onMounted(() => {
   <div class="app-shell">
     <header class="app-header">
       <div class="brand">
-        <strong>{{ t('app.title') }}</strong>
+        <strong>mavplan</strong>
         <span>{{ t('app.subtitle') }}</span>
       </div>
 
@@ -61,21 +62,23 @@ onMounted(() => {
 
       <div class="header-spacer" />
 
-      <span class="badge muted mono">{{ missionStore.stats.count }} wp</span>
-      <span class="badge muted mono">{{ (missionStore.stats.distanceM / 1000).toFixed(2) }} km</span>
+      <div class="header-meta">
+        <span class="badge muted mono">{{ missionStore.stats.count }} wp</span>
+        <span class="badge muted mono">{{ formatDistance(missionStore.stats.distanceM) }}</span>
 
-      <label class="switch">
-        <input
-          type="checkbox"
-          :checked="theme === 'dark'"
-          @change="applyTheme(theme === 'dark' ? 'light' : 'dark')"
-        />
-        {{ theme === 'dark' ? 'Dark' : 'Light' }}
-      </label>
+        <label class="switch" :title="theme === 'dark' ? 'Light' : 'Dark'">
+          <input
+            type="checkbox"
+            :checked="theme === 'dark'"
+            @change="applyTheme(theme === 'dark' ? 'light' : 'dark')"
+          />
+          <span aria-hidden="true">{{ theme === 'dark' ? '☾' : '☀' }}</span>
+        </label>
 
-      <button class="btn small" type="button" @click="settings.toggleLocale()">
-        {{ settings.locale === 'zh-CN' ? 'EN' : '中文' }}
-      </button>
+        <button class="btn small ghost" type="button" @click="settings.toggleLocale()">
+          {{ settings.locale === 'zh-CN' ? 'EN' : '中文' }}
+        </button>
+      </div>
     </header>
 
     <main class="content">
