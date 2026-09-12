@@ -99,6 +99,37 @@ export interface PreflightReport {
   cleared: boolean
 }
 
+/** Shape-compatible with mavplan CLI `mission check --json` (schema mavplan.preflight/1). */
+export function toPreflightJson(
+  report: PreflightReport,
+  missionName: string,
+  waypointCount: number,
+  zoneCount: number
+): {
+  schema: string
+  mission: { name: string; waypoints: number }
+  zones: number
+  summary: { errors: number; warnings: number; info: number }
+  checks: { code: string; level: string; message: string; waypoint?: number }[]
+} {
+  return {
+    schema: 'mavplan.preflight/1',
+    mission: { name: missionName, waypoints: waypointCount },
+    zones: zoneCount,
+    summary: {
+      errors: report.errors,
+      warnings: report.warnings,
+      info: report.infos
+    },
+    checks: report.items.map((item) => ({
+      code: item.code,
+      level: item.level,
+      message: item.code,
+      ...(typeof item.seq === 'number' ? { waypoint: item.seq } : {})
+    }))
+  }
+}
+
 export function defaultParams(): PreflightParams {
   return {
     maxAltitudeM: 120,

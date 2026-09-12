@@ -537,6 +537,22 @@ textarea {
   gap: 6px;
 }
 
+.finding-group {
+  margin-bottom: 12px;
+}
+
+.finding-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .finding {
   display: flex;
   gap: 8px;

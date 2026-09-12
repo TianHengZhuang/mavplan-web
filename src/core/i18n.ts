@@ -211,6 +211,9 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.available': '可用电量',
     'preflight.turnRadius': '最小转弯半径',
     'preflight.levels': '错误 {errors} · 告警 {warnings} · 提示 {infos}',
+    'preflight.copyJson': '复制 JSON',
+    'preflight.copyJsonOk': '已复制',
+    'preflight.copyJsonFail': '复制失败',
     'preflight.check.no-waypoints': '任务为空，无法预检。',
     'preflight.check.altitude-exceeded': '航点 {seq} 高度 {altitude} m 超出限高 {limit} m。',
     'preflight.check.distance-exceeded':
@@ -504,6 +507,9 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.available': 'Available',
     'preflight.turnRadius': 'Min turn radius',
     'preflight.levels': '{errors} errors · {warnings} warnings · {infos} info',
+    'preflight.copyJson': 'Copy JSON',
+    'preflight.copyJsonOk': 'Copied',
+    'preflight.copyJsonFail': 'Copy failed',
     'preflight.check.no-waypoints': 'The mission is empty — nothing to check.',
     'preflight.check.altitude-exceeded':
       'Waypoint {seq} at {altitude} m exceeds the {limit} m ceiling.',

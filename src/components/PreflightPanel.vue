@@ -9,7 +9,7 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { formatDistance, formatDuration, type LatLon } from '../core/geo'
 import { t } from '../core/i18n'
-import { type CheckItem, type Zone, preflightCheck } from '../core/preflight'
+import { type CheckItem, type Zone, preflightCheck, toPreflightJson } from '../core/preflight'
 import { useMissionStore } from '../stores/mission'
 import { useSettingsStore } from '../stores/settings'
 
@@ -118,6 +118,37 @@ function messageOf(item: CheckItem): string {
 function pick(item: CheckItem): void {
   if (typeof item.seq === 'number') store.selectedSeq = item.seq
 }
+
+const groupedFindings = computed(() => {
+  const levels = ['error', 'warning', 'info'] as const
+  return levels
+    .map((level) => ({
+      level,
+      items: visibleItems.value.filter((item) => item.level === level)
+    }))
+    .filter((group) => group.items.length > 0)
+})
+
+const copyState = ref<'idle' | 'ok' | 'fail'>('idle')
+
+async function copyPreflightJson(): Promise<void> {
+  const payload = toPreflightJson(
+    report.value,
+    store.mission.name || 'mission',
+    store.waypoints.length,
+    settings.zones.length
+  )
+  const text = JSON.stringify(payload, null, 2)
+  try {
+    await navigator.clipboard.writeText(text)
+    copyState.value = 'ok'
+  } catch {
+    copyState.value = 'fail'
+  }
+  window.setTimeout(() => {
+    copyState.value = 'idle'
+  }, 2000)
+}
 </script>
 
 <template>
@@ -131,6 +162,15 @@ function pick(item: CheckItem): void {
         t('preflight.levels', { errors: report.errors, warnings: report.warnings, infos: report.infos })
       }}</span>
       <div class="header-spacer" style="flex: 1" />
+      <button v-if="mode === 'full'" class="btn small ghost" type="button" @click="copyPreflightJson">
+        {{
+          copyState === 'ok'
+            ? t('preflight.copyJsonOk')
+            : copyState === 'fail'
+              ? t('preflight.copyJsonFail')
+              : t('preflight.copyJson')
+        }}
+      </button>
       <RouterLink v-if="mode === 'summary'" class="btn small ghost" to="/preflight">
         {{ t('preflight.issueList') }}
       </RouterLink>
@@ -172,7 +212,29 @@ function pick(item: CheckItem): void {
         <div :class="barClass" :style="{ width: `${usedPercent.toFixed(1)}%` }" />
       </div>
 
-      <ul v-if="visibleItems.length" class="findings">
+      <div v-if="mode === 'full' && groupedFindings.length">
+        <section v-for="group in groupedFindings" :key="group.level" class="finding-group">
+          <h4 class="finding-group-title">
+            {{ t(`preflight.level.${group.level}`) }}
+            <span class="badge muted mono">{{ group.items.length }}</span>
+          </h4>
+          <ul class="findings">
+            <li
+              v-for="(item, index) in group.items"
+              :key="`${item.code}-${item.seq ?? -1}-${index}`"
+              :class="`finding ${item.level}`"
+              @click="pick(item)"
+            >
+              <span class="badge" :class="item.level">
+                {{ t(`preflight.level.${item.level}`) }}
+              </span>
+              <span class="finding-text">{{ messageOf(item) }}</span>
+              <span v-if="typeof item.seq === 'number'" class="badge muted mono">#{{ item.seq }}</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+      <ul v-else-if="visibleItems.length" class="findings">
         <li
           v-for="(item, index) in visibleItems"
           :key="`${item.code}-${item.seq ?? -1}-${index}`"

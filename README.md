@@ -106,6 +106,12 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.12.0 (2026-09-12)
+
+- Preflight findings grouped by severity (error / warning / info) on the full console
+- Copy `mavplan.preflight/1` JSON to the clipboard for CLI / issue paste (`toPreflightJson`)
+- i18n for copy action (zh-CN / en)
+
 ### v1.11.0 (2026-09-12)
 
 - Waypoint table keyboard navigation: `↑`/`↓` move selection, `Enter` opens the first editable field, `Delete`/`Backspace` removes the selected row (ignored while typing)
