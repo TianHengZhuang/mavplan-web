@@ -107,6 +107,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.14.3 (2026-09-12)
+
+- DO_GRIPPER zh-CN label: 抓取器 (was 夹爪, too robotic-arm); en: Gripper (payload)
+
 ### v1.14.2 (2026-09-12)
 
 - MAV_CMD names in the UI follow the locale (e.g. 按距离触发相机 / Camera trigger by distance); technical `DO_*` / `NAV_*` tokens remain on hover and as fallback
