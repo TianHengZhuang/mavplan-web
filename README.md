@@ -107,6 +107,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+### v1.14.1 (2026-09-12)
+
+- Sample mission retargeted to Yunlong Lake (云龙湖), Xuzhou, Jiangsu (`江苏徐州 云龙湖`, HOME 34.2472, 117.1856)
+
 ### v1.14.0 (2026-09-12)
 
 - Mission undo / redo stack (50 steps): add / remove / move / duplicate, actions, clear, import, HOME

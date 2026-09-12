@@ -8,7 +8,7 @@
  * {
  *   "name": "Untitled Mission",
  *   "frame": 3,
- *   "home": [22.8175, 108.3165, 0],
+ *   "home": [34.2472, 117.1856, 0],
  *   "waypoints": [{ "seq": 0, "lat": ..., "lon": ..., "alt": ... }]
  * }
  * ```
@@ -570,12 +570,13 @@ export function addCameraTrigger(
 }
 
 /**
- * A small, realistic teaching sample: a river search-and-rescue sweep used by
- * the training material (Nanning, Yongjiang river — replace with your own site).
+ * A small, realistic teaching sample: a lake search-and-rescue sweep over
+ * Yunlong Lake (云龙湖), Xuzhou, Jiangsu — replace with your own site.
  */
 export function sampleMission(): MissionDoc {
-  const origin = { lat: 22.8175, lon: 108.3165 }
-  const mission = createMission('Yongjiang river SAR sweep')
+  // Southwest shore of Yunlong Lake (云龙湖), Xuzhou, Jiangsu
+  const origin = { lat: 34.2472, lon: 117.1856 }
+  const mission = createMission('江苏徐州 云龙湖')
   mission.home = [origin.lat, origin.lon, 0]
   const legs: Array<[number, number, number]> = [
     [0, 0, 60],
