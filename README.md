@@ -1,5 +1,9 @@
 # mavplan-web
 
+[![CI](https://github.com/TianHengZhuang/mavplan-web/actions/workflows/ci.yml/badge.svg)](https://github.com/TianHengZhuang/mavplan-web/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-blue)](https://tianhengzhuang.github.io/mavplan-web/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Browser console companion to the [mavplan](https://github.com/TianHengZhuang/mavplan) Python toolkit.
 
 Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixed-wing missions in the browser: edit waypoints, generate survey patterns, run preflight checks, and exchange mission files with the CLI. Pure client-side Vue 3 + TypeScript — no backend, works offline, no data leaves the machine.
@@ -98,6 +102,11 @@ tests/         Core and store unit tests
 - **QGC `.plan`**: waypoint position lives in the 7-element `params` array `[p1, p2, p3, p4, lat, lon, alt]` (same as mavplan Python `formats.py`).
 - **Zones JSON**: `{ "zones": [{ "name", "kind", "lat", "lon", "radius_m", "vertices"? }] }` — also accepts a bare array or a single zone object.
 - **TaskSpec JSON**: `version`, `name`, `home`, `required[]`, `altitude_range`, `speed_range`, `max_time_s`, `max_distance_m`, `no_fly_zones[]` — the same document `TaskSpec.to_dict()` writes.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md)
+for setup, scripts, and PR guidelines.
 
 ## License
 
