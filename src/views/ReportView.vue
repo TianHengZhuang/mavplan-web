@@ -29,6 +29,8 @@ import { t } from '../core/i18n'
 import { type CheckItem, preflightCheck } from '../core/preflight'
 import { useMissionStore } from '../stores/mission'
 import { useSettingsStore } from '../stores/settings'
+import { useFleetStore } from '../stores/fleet'
+import { buildMissionReview, renderReviewMarkdown, type MissionReview } from '../core/mission-review'
 
 const FOV_DEG = 84
 const SENSOR_PX = 5472
@@ -36,10 +38,28 @@ const TARGET_OVERLAP_PCT = 75
 
 const store = useMissionStore()
 const settings = useSettingsStore()
+const fleetStore = useFleetStore()
 const copied = ref(false)
+const reviewCopied = ref(false)
 
 const plan = computed(() => buildFlightPlan(store.waypoints))
 const report = computed(() => preflightCheck(store.mission, settings.params, settings.zones))
+const missionReview = computed<MissionReview>(() =>
+  buildMissionReview(store.mission, report.value.items, fleetStore.fleet)
+)
+const reviewMarkdown = computed(() => renderReviewMarkdown(missionReview.value))
+
+async function copyReview(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(reviewMarkdown.value)
+    reviewCopied.value = true
+    setTimeout(() => {
+      reviewCopied.value = false
+    }, 1500)
+  } catch {
+    reviewCopied.value = false
+  }
+}
 
 /** Payload figures are evaluated at the highest altitude of the plan. */
 const payloadAltitude = computed(() =>
@@ -305,6 +325,30 @@ function printSheet(): void {
         </div>
       </section>
 
+      <section class="sheet-block review-block">
+        <div class="sheet-block-head">
+          <h3>{{ t('review.title') }}</h3>
+          <span
+            class="badge"
+            :class="
+              missionReview.verdict === 'pass'
+                ? 'ok'
+                : missionReview.verdict === 'conditional'
+                  ? 'warning'
+                  : 'error'
+            "
+          >
+            {{ missionReview.verdictText }}
+          </span>
+        </div>
+        <div v-for="section in missionReview.sections" :key="section.title" class="review-section">
+          <h4>{{ section.title }}</h4>
+          <ul>
+            <li v-for="(b, i) in section.bullets" :key="i">{{ b }}</li>
+          </ul>
+        </div>
+      </section>
+
       <footer class="sheet-foot mono">{{ t('report.footer') }}</footer>
     </div>
 
@@ -319,6 +363,9 @@ function printSheet(): void {
           </button>
           <button class="btn ghost" type="button" @click="copyBriefing">
             {{ copied ? t('report.copied') : t('report.copy') }}
+          </button>
+          <button class="btn ghost" type="button" @click="copyReview">
+            {{ reviewCopied ? t('review.copied') : t('review.copy') }}
           </button>
           <RouterLink class="btn ghost" to="/preflight">{{ t('preflight.issueList') }}</RouterLink>
           <RouterLink class="btn ghost" to="/">{{ t('nav.editor') }}</RouterLink>
@@ -345,6 +392,29 @@ function printSheet(): void {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.review-block .sheet-block-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.review-block h4 {
+  margin: 10px 0 4px;
+  font-size: 14px;
+}
+
+.review-block ul {
+  margin: 0 0 6px 1.1em;
+  padding: 0;
+}
+
+.review-block li {
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 3px 0;
 }
 
 .sheet-head {

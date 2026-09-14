@@ -14,9 +14,11 @@ import { formatCoord, formatDistance, formatDuration } from '../core/geo'
 import { t } from '../core/i18n'
 import { useMissionStore } from '../stores/mission'
 import { useSettingsStore } from '../stores/settings'
+import { useFleetStore } from '../stores/fleet'
 
 const store = useMissionStore()
 const settings = useSettingsStore()
+const fleetStore = useFleetStore()
 
 const plan = computed(() => buildFlightPlan(store.waypoints))
 
@@ -91,6 +93,11 @@ onBeforeUnmount(stop)
     <section class="panel">
       <div class="panel-head">
         <h3>{{ t('playback.title') }}</h3>
+        <span class="badge muted">{{ store.mission.name }}</span>
+        <span class="badge muted">{{ t('fleet.drones') }} {{ fleetStore.count }}</span>
+        <span v-if="fleetStore.lead" class="badge muted mono">
+          {{ fleetStore.lead.name }} · {{ fleetStore.lead.model || '—' }}
+        </span>
         <span class="badge muted mono">{{ formatDistance(totalM) }}</span>
         <span class="badge muted mono">{{ formatDuration(totalDurationS) }}</span>
         <span class="badge" :class="playing ? 'ok' : 'muted'">
@@ -114,7 +121,8 @@ onBeforeUnmount(stop)
               <option :value="8">8×</option>
             </select>
           </div>
-          <span class="badge muted mono">{{ t('playback.elapsed') }} {{ formatDuration(elapsedS) }}</span>
+          <span class="badge muted mono">{{ t('playback.activeDrone') }} {{ fleetStore.lead?.name ?? '—' }}</span>
+        <span class="badge muted mono">{{ t('playback.elapsed') }} {{ formatDuration(elapsedS) }}</span>
           <span class="badge muted mono">{{ t('playback.remaining') }} {{ formatDuration(remainingS) }}</span>
         </div>
 

@@ -116,6 +116,13 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
+
+### v1.15.0 (2026-09-14)
+
+- Fleet panel on dashboard: add/remove drones, lead assignment, KPI drone count
+- Regional NFZ picker on preflight: province/city/district, builtin Xuzhou teaching pack
+- Playback header: mission name, drone count, active lead drone
+- Report one-click review: pre / in-flight / post analysis + copy Markdown
 ### v1.14.4 (2026-09-14)
 
 - Smoother marker drag on large missions: localStorage persistence is debounced (200ms) and flushed on page hide

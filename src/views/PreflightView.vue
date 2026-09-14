@@ -8,6 +8,7 @@ import AltitudeProfile from '../components/AltitudeProfile.vue'
 import CliCompanion from '../components/CliCompanion.vue'
 import MapCanvas from '../components/MapCanvas.vue'
 import PreflightPanel from '../components/PreflightPanel.vue'
+import NfzRegionPicker from '../components/NfzRegionPicker.vue'
 import { t } from '../core/i18n'
 import { useMissionStore } from '../stores/mission'
 import { useSettingsStore } from '../stores/settings'
@@ -23,6 +24,8 @@ const mapRef = ref<InstanceType<typeof MapCanvas> | null>(null)
     <PreflightPanel mode="full" />
 
     <div class="preflight-side">
+      <NfzRegionPicker />
+
       <div class="panel">
         <div class="panel-head">
           <h3>{{ t('editor.map') }}</h3>

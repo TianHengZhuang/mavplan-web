@@ -13,9 +13,12 @@ import { bearingDeg, formatDistance, formatDuration, haversineDistance } from '.
 import { t } from '../core/i18n'
 import { useMissionStore } from '../stores/mission'
 import { useSettingsStore } from '../stores/settings'
+import { useFleetStore } from '../stores/fleet'
+import FleetPanel from '../components/FleetPanel.vue'
 
 const store = useMissionStore()
 const settings = useSettingsStore()
+const fleetStore = useFleetStore()
 
 const stats = computed(() => store.stats)
 
@@ -96,6 +99,10 @@ const issues = computed(() => store.issues)
             <div class="value">{{ formatDuration(stats.durationS) }}</div>
           </div>
           <div class="stat">
+            <div class="label">{{ t('fleet.drones') }}</div>
+            <div class="value">{{ fleetStore.count }}</div>
+          </div>
+          <div class="stat">
             <div class="label">{{ t('dashboard.kpi.avgSpeed') }}</div>
             <div class="value">{{ averageSpeed.toFixed(1) }} m/s</div>
           </div>
@@ -132,6 +139,8 @@ const issues = computed(() => store.issues)
         </div>
       </div>
     </section>
+
+    <FleetPanel />
 
     <section class="panel">
       <div class="panel-head">
@@ -176,6 +185,10 @@ const issues = computed(() => store.issues)
   grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.9fr);
   gap: 12px;
   align-items: start;
+}
+
+.dashboard > .fleet-panel {
+  grid-column: 1 / -1;
 }
 
 .tiles {
