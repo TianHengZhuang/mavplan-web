@@ -571,12 +571,12 @@ export function addCameraTrigger(
 
 /**
  * A small, realistic teaching sample: a lake search-and-rescue sweep over
- * Yunlong Lake (云龙湖), Xuzhou, Jiangsu — replace with your own site.
+ * Yunlong Lake (云龙湖), Xuzhou, Jiangsu (江苏省徐州市) — replace with your own site.
  */
 export function sampleMission(): MissionDoc {
-  // Southwest shore of Yunlong Lake (云龙湖), Xuzhou, Jiangsu
+  // Southwest shore of Yunlong Lake (云龙湖), Xuzhou, Jiangsu (江苏省徐州市)
   const origin = { lat: 34.2472, lon: 117.1856 }
-  const mission = createMission('江苏徐州 云龙湖')
+  const mission = createMission('江苏省徐州市 云龙湖')
   mission.home = [origin.lat, origin.lon, 0]
   const legs: Array<[number, number, number]> = [
     [0, 0, 60],
