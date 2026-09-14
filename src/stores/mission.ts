@@ -54,7 +54,8 @@ function loadInitial(): MissionDoc {
 }
 
 function cloneMission(doc: MissionDoc): MissionDoc {
-  return fromDict(JSON.parse(JSON.stringify(toDict(doc))) as Record<string, unknown>)
+  // structuredClone is one pass and avoids a stringify/parse round-trip on every undo push
+  return fromDict(structuredClone(toDict(doc)) as Record<string, unknown>)
 }
 
 export const useMissionStore = defineStore('mission', () => {
@@ -66,18 +67,55 @@ export const useMissionStore = defineStore('mission', () => {
   const redoStack = ref<MissionDoc[]>([])
   let suppressHistory = false
 
-  watch(
-    mission,
-    (value) => {
-      dirty.value = true
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(toDict(value)))
-      } catch {
-        /* ignore quota / private-mode errors */
-      }
-    },
-    { deep: true }
-  )
+  const PERSIST_DEBOUNCE_MS = 200
+  const COALESCE_MS = 450
+  let persistTimer: ReturnType<typeof setTimeout> | null = null
+  let lastHistoryKey = ''
+  let lastHistoryAt = 0
+
+  function persistNow(): void {
+    persistTimer = null
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toDict(mission.value)))
+    } catch {
+      /* ignore quota / private-mode errors */
+    }
+  }
+
+  function schedulePersist(): void {
+    dirty.value = true
+    if (persistTimer) clearTimeout(persistTimer)
+    persistTimer = setTimeout(persistNow, PERSIST_DEBOUNCE_MS)
+  }
+
+  /** Flush any pending debounced write (pagehide / HMR teardown). */
+  function flushPersist(): void {
+    if (persistTimer) {
+      clearTimeout(persistTimer)
+      persistNow()
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', flushPersist)
+  }
+
+  watch(mission, schedulePersist, { deep: true })
+
+  /**
+   * Undo entry for continuous gestures (e.g. marker drag): one snapshot per
+   * burst of updates on the same target within COALESCE_MS.
+   */
+  function pushHistoryCoalesced(key: string): void {
+    const now = Date.now()
+    if (key === lastHistoryKey && now - lastHistoryAt < COALESCE_MS) {
+      lastHistoryAt = now
+      return
+    }
+    lastHistoryKey = key
+    lastHistoryAt = now
+    pushHistory()
+  }
 
   function pushHistory(): void {
     if (suppressHistory) return
@@ -86,6 +124,9 @@ export const useMissionStore = defineStore('mission', () => {
       undoStack.value.shift()
     }
     redoStack.value = []
+    // A discrete edit ends any open coalesced gesture
+    lastHistoryKey = ''
+    lastHistoryAt = 0
   }
 
   function applySnapshot(next: MissionDoc): void {
@@ -175,6 +216,7 @@ export const useMissionStore = defineStore('mission', () => {
   function updateWaypoint(seq: number, patch: Partial<Waypoint>): void {
     const waypoint = mission.value.waypoints[seq]
     if (!waypoint) return
+    pushHistoryCoalesced(`wp:${seq}`)
     Object.assign(waypoint, patch)
   }
 
@@ -357,6 +399,7 @@ export const useMissionStore = defineStore('mission', () => {
   const defaultCommand = NAV_WAYPOINT
 
   return {
+    flushPersist,
     mission,
     waypoints,
     stats,

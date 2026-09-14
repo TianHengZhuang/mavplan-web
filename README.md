@@ -116,7 +116,13 @@ MIT — see [LICENSE](LICENSE).
 
 ## Changelog
 
-### v1.14.3 (2026-09-12)
+### v1.14.4 (2026-09-14)
+
+- Smoother marker drag on large missions: localStorage persistence is debounced (200ms) and flushed on page hide
+- Continuous waypoint drags coalesce into a single undo step (one snapshot per gesture burst)
+- Faster undo snapshots via `structuredClone` instead of JSON stringify/parse round-trip
+
+### v1.14.3 (2026-09-12) (2026-09-12)
 
 - DO_GRIPPER zh-CN label: 抓取器 (was 夹爪, too robotic-arm); en: Gripper (payload)
 
