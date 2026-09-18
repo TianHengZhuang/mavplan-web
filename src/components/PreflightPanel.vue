@@ -130,6 +130,7 @@ const groupedFindings = computed(() => {
 })
 
 const copyState = ref<'idle' | 'ok' | 'fail'>('idle')
+const copyMdState = ref<'idle' | 'ok' | 'fail'>('idle')
 
 async function copyPreflightJson(): Promise<void> {
   const payload = toPreflightJson(
@@ -148,6 +149,45 @@ async function copyPreflightJson(): Promise<void> {
   }
   window.setTimeout(() => {
     copyState.value = 'idle'
+  }, 2000)
+}
+
+function preflightMarkdown(): string {
+  const name = store.mission.name || 'mission'
+  const cleared = report.value.cleared ? t('preflight.resultCleared') : t('preflight.resultBlocked')
+  const lines = [
+    `# ${t('preflight.title')} — ${name}`,
+    '',
+    `- ${t('preflight.summary')}: ${cleared}`,
+    `- ${t('preflight.errors')}: ${report.value.errors}`,
+    `- ${t('preflight.warnings')}: ${report.value.warnings}`,
+    `- ${t('preflight.infos')}: ${report.value.infos}`,
+    `- ${t('preflight.distance')}: ${formatDistance(report.value.distanceM)}`,
+    `- ${t('preflight.duration')}: ${formatDuration(report.value.durationS)}`,
+    '',
+    `## ${t('preflight.issueList')}`,
+    ''
+  ]
+  const findings = props.mode === 'summary' ? visibleItems.value : report.value.items
+  if (!findings.length) {
+    lines.push(`- ${t('preflight.noIssues')}`)
+  } else {
+    for (const item of findings) {
+      lines.push(`- **${t(`preflight.level.${item.level}`)}** ${messageOf(item)}`)
+    }
+  }
+  return lines.join('\n')
+}
+
+async function copyPreflightMarkdown(): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(preflightMarkdown())
+    copyMdState.value = 'ok'
+  } catch {
+    copyMdState.value = 'fail'
+  }
+  window.setTimeout(() => {
+    copyMdState.value = 'idle'
   }, 2000)
 }
 </script>
@@ -170,6 +210,15 @@ async function copyPreflightJson(): Promise<void> {
             : copyState === 'fail'
               ? t('preflight.copyJsonFail')
               : t('preflight.copyJson')
+        }}
+      </button>
+      <button v-if="mode === 'full'" class="btn small ghost" type="button" @click="copyPreflightMarkdown">
+        {{
+          copyMdState === 'ok'
+            ? t('preflight.copyMarkdownOk')
+            : copyMdState === 'fail'
+              ? t('preflight.copyMarkdownFail')
+              : t('preflight.copyMarkdown')
         }}
       </button>
       <RouterLink v-if="mode === 'summary'" class="btn small ghost" to="/preflight">
