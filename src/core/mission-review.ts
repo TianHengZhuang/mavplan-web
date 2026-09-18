@@ -19,6 +19,32 @@ export interface MissionReview {
   verdictText: string
   sections: ReviewSection[]
   generatedAt: string
+  /** Plan-quality score 0–100 aligned with mavplan `grade plan` (v1.16). */
+  score: number
+  band: string
+  scoreBreakdown: { label: string; points: number; level: string }[]
+}
+
+function bandForScore(score: number): string {
+  if (score >= 90) return '优秀'
+  if (score >= 80) return '良好'
+  if (score >= 60) return '合格'
+  return '不合格'
+}
+
+function scoreFromChecks(checks: CheckItem[]): { score: number; breakdown: { label: string; points: number; level: string }[] } {
+  let score = 100
+  const breakdown: { label: string; points: number; level: string }[] = []
+  for (const c of checks) {
+    if (c.level === 'error') {
+      score -= 20
+      breakdown.push({ label: describeCheck(c), points: 20, level: 'error' })
+    } else if (c.level === 'warning') {
+      score -= 8
+      breakdown.push({ label: describeCheck(c), points: 8, level: 'warning' })
+    }
+  }
+  return { score: Math.max(0, score), breakdown }
 }
 
 function verdictFromChecks(checks: CheckItem[]): { verdict: ReviewVerdict; text: string } {
@@ -133,6 +159,7 @@ export function buildMissionReview(
   if (fleet) post.push(`机队复盘：${fleet.drones.map((d) => d.name).join('、')}`)
   post.push('后续：将日志导入 analyze compare 做计划 vs 实测对比')
 
+  const { score, breakdown } = scoreFromChecks(checks)
   return {
     missionName: mission.name,
     droneCount: fleet?.drones.length ?? 1,
@@ -143,7 +170,10 @@ export function buildMissionReview(
       { title: '任务中分析', bullets: mid },
       { title: '任务后分析', bullets: post }
     ],
-    generatedAt: new Date().toLocaleString(undefined, { hour12: false })
+    generatedAt: new Date().toLocaleString(undefined, { hour12: false }),
+    score,
+    band: bandForScore(score),
+    scoreBreakdown: breakdown
   }
 }
 
@@ -151,8 +181,16 @@ export function renderReviewMarkdown(review: MissionReview): string {
   const lines = [
     `# 任务一键总结 · ${review.missionName}`,
     `生成时间：${review.generatedAt} · 机队：${review.droneCount} 架 · 结论：${review.verdictText}`,
+    `计划评分：${review.score} / 100（${review.band}）`,
     ''
   ]
+  if (review.scoreBreakdown?.length) {
+    lines.push('## 扣分明细')
+    for (const d of review.scoreBreakdown) {
+      lines.push(`- −${d.points} [${d.level}] ${d.label}`)
+    }
+    lines.push('')
+  }
   for (const s of review.sections) {
     lines.push(`## ${s.title}`)
     for (const b of s.bullets) lines.push(`- ${b}`)

@@ -340,6 +340,19 @@ function printSheet(): void {
           >
             {{ missionReview.verdictText }}
           </span>
+          <span class="badge muted mono score-badge">
+            {{ t('grade.score') }}: {{ missionReview.score }} · {{ missionReview.band }}
+          </span>
+        </div>
+        <div class="grade-panel">
+          <h4>{{ t('grade.title') }}</h4>
+          <p class="hint">{{ t('grade.hint') }}</p>
+          <ul v-if="missionReview.scoreBreakdown.length" class="grade-list">
+            <li v-for="(d, i) in missionReview.scoreBreakdown" :key="i" class="mono">
+              -{{ d.points }} {{ d.level }} — {{ d.label }}
+            </li>
+          </ul>
+          <p v-else class="hint">{{ t('grade.noDeductions') }}</p>
         </div>
         <div v-for="section in missionReview.sections" :key="section.title" class="review-section">
           <h4>{{ section.title }}</h4>
@@ -593,6 +606,24 @@ tr.action {
   padding-top: 8px;
   font-size: 10px;
   color: var(--muted);
+}
+
+.score-badge {
+  margin-left: 8px;
+}
+
+.grade-panel {
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.grade-list {
+  margin: 6px 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 12px;
 }
 
 .side .panel-body {

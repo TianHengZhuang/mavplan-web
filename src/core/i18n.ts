@@ -268,6 +268,10 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.copyMarkdown': '复制 Markdown',
     'preflight.copyMarkdownOk': '已复制 MD',
     'preflight.copyMarkdownFail': '复制失败',
+    'grade.title': '计划质量评分',
+    'grade.score': '分数',
+    'grade.hint': '与 CLI `mavplan grade plan` 同口径：错误 -20，警告 -8，最低 0 分。',
+    'grade.noDeductions': '未扣分。',
     'preflight.check.no-waypoints': '任务为空，无法预检。',
     'preflight.check.altitude-exceeded': '航点 {seq} 高度 {altitude} m 超出限高 {limit} m。',
     'preflight.check.distance-exceeded':
@@ -618,6 +622,10 @@ const MESSAGES: Record<Locale, Record<string, string>> = {
     'preflight.copyMarkdown': 'Copy Markdown',
     'preflight.copyMarkdownOk': 'Copied MD',
     'preflight.copyMarkdownFail': 'Copy failed',
+    'grade.title': 'Plan quality score',
+    'grade.score': 'Score',
+    'grade.hint': 'Same rubric as CLI `mavplan grade plan`: error −20, warning −8, floor 0.',
+    'grade.noDeductions': 'No deductions.',
     'preflight.check.no-waypoints': 'The mission is empty — nothing to check.',
     'preflight.check.altitude-exceeded':
       'Waypoint {seq} at {altitude} m exceeds the {limit} m ceiling.',
