@@ -37,6 +37,10 @@ const props = defineProps<{
   armed: boolean
   /** TaskSpec required checkpoints (exam brief overlay). */
   required?: TaskCheckPoint[]
+  /** Recorded flight track (log replay overlay), in flight order. */
+  track?: LatLon[]
+  /** Current position on the recorded track. */
+  trackCursor?: LatLon | null
 }>()
 
 const emit = defineEmits<{
@@ -101,6 +105,16 @@ const pathPoints = computed(() =>
     return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
   })
 )
+
+/** Recorded track as an SVG polyline (log replay overlay). */
+const trackPoints = computed(() =>
+  (props.track ?? []).map((point) => {
+    const p = project(point)
+    return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
+  })
+)
+
+const trackCursorPoint = computed(() => (props.trackCursor ? project(props.trackCursor) : null))
 
 const legs = computed(() => {
   const result: { x: number; y: number; bearing: number }[] = []
@@ -254,6 +268,10 @@ function fit(): void {
     if (zone.kind === 'circle') points.push({ lat: zone.lat, lon: zone.lon })
     else points.push(...zone.vertices)
   }
+  // Sample the recorded track so "fit" keeps both the plan and the log in view.
+  const track = props.track ?? []
+  const trackStep = Math.max(1, Math.floor(track.length / 200))
+  for (let i = 0; i < track.length; i += trackStep) points.push(track[i])
   if (!points.length) return
   const lats = points.map((p) => p.lat)
   const lons = points.map((p) => p.lon)
@@ -461,6 +479,19 @@ onBeforeUnmount(() => {
         fill="none"
       />
 
+      <polyline
+        v-if="trackPoints.length > 1"
+        class="replay-track"
+        :points="trackPoints.join(' ')"
+        :stroke-width="px(2.4)"
+        fill="none"
+      />
+
+      <g class="replay-cursor" v-if="trackCursorPoint">
+        <circle :cx="trackCursorPoint.x" :cy="trackCursorPoint.y" :r="px(5.5)" :stroke-width="px(1.6)" />
+        <circle :cx="trackCursorPoint.x" :cy="trackCursorPoint.y" :r="px(1.8)" class="replay-cursor-core" />
+      </g>
+
       <g class="leg-arrows">
         <g v-for="(leg, index) in legs" :key="`leg${index}`" :transform="`translate(${leg.x} ${leg.y}) rotate(${leg.bearing})`">
           <path
@@ -542,6 +573,27 @@ onBeforeUnmount(() => {
 
 .map-canvas.armed {
   cursor: crosshair;
+}
+
+.replay-track {
+  stroke: #f2994a;
+  stroke-dasharray: 7 3;
+  opacity: 0.92;
+  pointer-events: none;
+}
+
+.replay-cursor {
+  pointer-events: none;
+}
+
+.replay-cursor circle {
+  fill: #ffffff;
+  stroke: #f2994a;
+}
+
+.replay-cursor .replay-cursor-core {
+  fill: #f2994a;
+  stroke: none;
 }
 
 .map-canvas:active {

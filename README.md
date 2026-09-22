@@ -26,7 +26,7 @@ Plan multirotor UAV, fixed-wing, single-rotor helicopter, and compound VTOL fixe
 | Action items | DO_* actions (camera trigger, set HOME, RTL, …) with in-place interval / distance editing |
 | Camera / payload | Swath, GSD, overlap, trigger spacing, photo count and data volume from altitude + FOV |
 | Briefing sheet | One-page printable brief: metrics, waypoint/leg tables, payload estimate, preflight summary, sign-off block |
-| Playback | Replay along the track by distance or time; live position, altitude, speed and active leg |
+| Playback | Replay along the track by distance or time; live position, altitude, speed and active leg. `log` mode replays a recorded CSV flight log and compares it against the plan (cross-track, altitude, distance and duration deltas) |
 | Dashboard | Mission stats, leg distribution, preflight summary |
 | Other | zh-CN / en UI, light/dark theme, localStorage persistence, shortcuts (<kbd>Ctrl</kbd>+<kbd>Z</kbd> mission undo, <kbd>?</kbd> help overlay) |
 
@@ -115,6 +115,13 @@ MIT — see [LICENSE](LICENSE).
 ---
 
 ## Changelog
+
+
+### v1.17.0 (2026-09-22)
+
+- Playback: **flight log replay** — load a recorded CSV flight log and scrub it on the map (dashed flown track + live cursor); the browser twin of `mavplan analyze replay`
+- Playback: **plan vs log comparison** — cross-track deviation (max / mean / P90), altitude error, distance and duration deltas, end offset
+- Playback: `plan` / `log` mode switch; log bar shows the source file, sample counts, downsampling badge, max altitude and average ground speed
 
 
 ### v1.15.0 (2026-09-14)
