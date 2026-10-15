@@ -17,13 +17,13 @@ describe('buildBriefingMarkdown', () => {
   it('emits a metrics table and no-issues line', () => {
     const md = buildBriefingMarkdown(base)
     expect(md).toContain('# Survey A')
-    expect(md).toContain('| Waypoints | 12 |')
-    expect(md).toContain('No open issues.')
+    expect(md).toContain('| 航点数 | 12 |')
+    expect(md).toContain('无待处理问题。')
   })
 
   it('lists issues when present', () => {
     const md = buildBriefingMarkdown({ ...base, issues: ['WP3 above limit', 'Missing HOME'] })
-    expect(md).toContain('## Issues')
+    expect(md).toContain('## 问题')
     expect(md).toContain('1. WP3 above limit')
     expect(md).toContain('2. Missing HOME')
   })
