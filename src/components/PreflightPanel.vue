@@ -303,7 +303,7 @@ async function copyPreflightMarkdown(): Promise<void> {
       <template v-if="mode === 'full'">
         <section class="sub-block">
           <h4>{{ t('preflight.params') }}</h4>
-          <div class="field-row">
+          <div class="field-row param-row">
             <div class="field">
               <label>{{ t('preflight.maxAltitude') }}</label>
               <input v-model.number="settings.params.maxAltitudeM" type="number" step="5" min="5" />
@@ -329,7 +329,7 @@ async function copyPreflightMarkdown(): Promise<void> {
               <input v-model.number="settings.params.hoverTimeS" type="number" step="1" min="0" />
             </div>
           </div>
-          <div class="field-row">
+          <div class="field-row param-row">
             <div class="field">
               <label>{{ t('preflight.battery.capacity') }}</label>
               <input v-model.number="settings.params.battery.capacityMah" type="number" step="100" min="200" />
@@ -542,6 +542,22 @@ async function copyPreflightMarkdown(): Promise<void> {
 .finding-text {
   flex: 1;
   font-size: 12.5px;
+}
+
+.param-row {
+  /* 固定 6 列等宽网格：两行输入框横向严格对齐，不受标签文字长度影响 */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.param-row .field {
+  min-width: 0;
+}
+
+.param-row .field > label {
+  /* 标签单行不换行，避免长标签把输入框顶到下一行 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sub-block {

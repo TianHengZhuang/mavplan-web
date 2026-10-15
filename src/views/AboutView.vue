@@ -31,13 +31,6 @@ const features = [
     en: 'Chinese/English UI, works offline, mission and settings persisted in localStorage'
   }
 ]
-
-const shortcuts = [
-  { keys: '?', zh: '打开快捷键帮助浮层', en: 'Open the shortcut help overlay' },
-  { keys: '↑ / ↓ · Enter · Delete', zh: '航点表选择 / 编辑 / 删除', en: 'Waypoint table select / edit / delete' },
-  { keys: 'Ctrl / ⌘ + Z', zh: '撤销任务结构变更', en: 'Undo mission structure changes' },
-  { keys: 'Ctrl / ⌘ + Shift + Z / Y', zh: '重做', en: 'Redo' }
-]
 </script>
 
 <template>
@@ -58,21 +51,6 @@ const shortcuts = [
             {{ settings.locale === 'zh-CN' ? feature.zh : feature.en }}
           </li>
         </ul>
-
-        <table class="shortcuts">
-          <thead>
-            <tr>
-              <th>{{ settings.locale === 'zh-CN' ? '快捷键' : 'Shortcut' }}</th>
-              <th>{{ settings.locale === 'zh-CN' ? '作用' : 'Action' }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in shortcuts" :key="row.keys">
-              <td class="mono">{{ row.keys }}</td>
-              <td>{{ settings.locale === 'zh-CN' ? row.zh : row.en }}</td>
-            </tr>
-          </tbody>
-        </table>
 
         <p class="muted">
           <a href="https://github.com/TianHengZhuang/mavplan" target="_blank" rel="noreferrer">mavplan</a>
@@ -111,20 +89,6 @@ const shortcuts = [
   flex-direction: column;
   gap: 6px;
   font-size: 12.5px;
-}
-
-.shortcuts {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-  margin-bottom: 12px;
-}
-
-.shortcuts th,
-.shortcuts td {
-  text-align: left;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border);
 }
 
 a {

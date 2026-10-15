@@ -100,7 +100,7 @@ const climbExtremes = computed(() => {
       <h3>{{ t('editor.panel.profile') }}</h3>
       <span class="badge muted mono">{{ formatDistance(totalDistance) }}</span>
       <span class="badge muted mono">{{ durationText }}</span>
-      <span class="badge muted mono">max Δalt/s {{ climbExtremes.toFixed(1) }} m/s</span>
+      <span class="badge muted mono">{{ t('editor.maxAltSpeed') }} {{ climbExtremes.toFixed(1) }} m/s</span>
     </div>
     <div class="panel-body">
       <div v-if="!waypoints.length" class="empty">{{ t('editor.noWaypoints') }}</div>
@@ -125,7 +125,7 @@ const climbExtremes = computed(() => {
             :class="{ selected: marker.seq === selectedSeq, action: !isNavigable(waypoints[marker.seq].command) }"
             @click="emit('select', marker.seq)"
           >
-            <title>WP{{ marker.seq }} · {{ marker.alt.toFixed(0) }} m @ {{ formatDistance(marker.distance) }}</title>
+            <title>{{ t('editor.wp') }}{{ marker.seq }} · {{ marker.alt.toFixed(0) }} m · {{ formatDistance(marker.distance) }}</title>
           </circle>
         </g>
 

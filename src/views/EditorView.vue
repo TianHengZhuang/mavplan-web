@@ -3,7 +3,7 @@
  * Editor view — mission toolbar, map, altitude profile, waypoint table and
  * the pattern / IO side panels.
  */
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import ActionPanel from '../components/ActionPanel.vue'
 import AltitudeProfile from '../components/AltitudeProfile.vue'
 import CameraPanel from '../components/CameraPanel.vue'
@@ -41,6 +41,18 @@ function fit(): void {
 function confirmClear(): void {
   if (window.confirm(t('editor.clearConfirm'))) store.clear()
 }
+
+/**
+ * Load the sample mission together with its demo companion data (no-fly
+ * zone, raster tiles) so every panel on the editor screen refreshes as one.
+ */
+function loadSample(): void {
+  store.loadSample()
+  settings.loadDemoScenario()
+  // Wait for the mission/zone state to propagate to MapCanvas props, then
+  // auto-fit the map to the sample mission area (waypoints, home, no-fly zones).
+  void nextTick(() => mapRef.value?.fit())
+}
 </script>
 
 <template>
@@ -67,7 +79,7 @@ function confirmClear(): void {
         </div>
       </div>
       <div class="toolbar">
-        <button class="btn small" type="button" @click="store.loadSample()">{{ t('editor.loadSample') }}</button>
+        <button class="btn small" type="button" @click="loadSample">{{ t('editor.loadSample') }}</button>
         <button class="btn small danger" type="button" @click="confirmClear" :disabled="!store.stats.count">
           {{ t('editor.clear') }}
         </button>
@@ -82,7 +94,7 @@ function confirmClear(): void {
             <button class="btn small" :class="armed ? 'primary' : ''" type="button" @click="armed = !armed">
               {{ t('editor.addWaypoint') }} · {{ armed ? t('common.enabled') : t('common.disabled') }}
             </button>
-            <button class="btn small ghost" type="button" @click="fit">{{ t('common.apply') }} · fit</button>
+            <button class="btn small ghost" type="button" @click="fit">{{ t('editor.fit') }}</button>
             <div class="header-spacer" style="flex: 1" />
             <label class="switch">
               <input v-model="settings.showTiles" type="checkbox" />

@@ -62,7 +62,7 @@ function focus(seq: number): void {
       <span class="badge muted mono">{{ legs.length }} {{ t('timeline.legs') }}</span>
       <span class="badge muted mono">↑ {{ climbStats.up.toFixed(0) }} m</span>
       <span class="badge muted mono">↓ {{ climbStats.down.toFixed(0) }} m</span>
-      <span class="badge muted mono">max |Δalt/s| {{ steepest.toFixed(1) }} m/s</span>
+      <span class="badge muted mono">{{ t('editor.maxAltSpeed') }} {{ steepest.toFixed(1) }} m/s</span>
       <div class="header-spacer" style="flex: 1" />
       <button class="btn small" type="button" :disabled="!store.waypoints.length" @click="store.addLandingWaypoint()">
         {{ t('timeline.addLanding') }}

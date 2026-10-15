@@ -78,7 +78,7 @@ onBeforeUnmount(() => {
   <div class="app-shell">
     <header class="app-header">
       <div class="brand">
-        <strong>mavplan</strong>
+        <strong>{{ t('app.title') }}</strong>
         <span>{{ t('app.subtitle') }}</span>
       </div>
 

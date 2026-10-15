@@ -53,7 +53,7 @@ function statusClass(status: Drone['status']): string {
           <div class="meta mono">
             <span>{{ d.callsign || '—' }}</span>
             <span>{{ d.model || '—' }}</span>
-            <span>{{ d.role }}</span>
+            <span>{{ t('fleet.role.' + d.role) }}</span>
           </div>
           <div class="meta">
             <span>{{ d.batteryWh }} Wh</span>
@@ -80,9 +80,9 @@ function statusClass(status: Drone['status']): string {
         <input v-model="newCallsign" :placeholder="t('fleet.callsign')" />
         <input v-model="newModel" :placeholder="t('fleet.model')" />
         <select v-model="newRole">
-          <option value="wingman">wingman</option>
-          <option value="standby">standby</option>
-          <option value="lead">lead</option>
+          <option value="wingman">{{ t('fleet.role.wingman') }}</option>
+          <option value="standby">{{ t('fleet.role.standby') }}</option>
+          <option value="lead">{{ t('fleet.role.lead') }}</option>
         </select>
         <button class="btn small" type="submit">{{ t('fleet.add') }}</button>
       </form>

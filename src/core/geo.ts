@@ -234,6 +234,65 @@ export function formatCoord(value: number, digits = 6): string {
  * of the map canvas (offline vector rendering is the default).
  * ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ *
+ * GCJ-02 (Amap/AutoNavi) coordinate conversion.
+ *
+ * Amap raster tiles are served in the GCJ-02 datum.  All mission data
+ * (waypoints, HOME, no-fly zones) is WGS-84, so the tile layer must
+ * translate between the two before requesting and placing tiles,
+ * otherwise the basemap is offset ~500 m east / ~140 m south in the
+ * Xuzhou area.
+ * ------------------------------------------------------------------ */
+
+const GCJ_A = 6378245.0
+const GCJ_EE = 0.00669342162296594323
+
+function outOfChina(lat: number, lon: number): boolean {
+  return lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271
+}
+
+function transformLat(x: number, y: number): number {
+  let ret =
+    -100.0 +
+    2.0 * x +
+    3.0 * y +
+    0.2 * y * y +
+    0.1 * x * y +
+    0.2 * Math.sqrt(Math.abs(x))
+  ret += ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0) / 3.0
+  ret += ((20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin((y / 3.0) * Math.PI)) * 2.0) / 3.0
+  ret += ((160.0 * Math.sin((y / 12.0) * Math.PI) + 320.0 * Math.sin((y * Math.PI) / 30.0)) * 2.0) / 3.0
+  return ret
+}
+
+function transformLon(x: number, y: number): number {
+  let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x))
+  ret += ((20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0) / 3.0
+  ret += ((20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin((x / 3.0) * Math.PI)) * 2.0) / 3.0
+  ret += ((150.0 * Math.sin((x / 12.0) * Math.PI) + 300.0 * Math.sin((x / 30.0) * Math.PI)) * 2.0) / 3.0
+  return ret
+}
+
+/** WGS-84 → GCJ-02. Returns a new LatLon (identity when outside China). */
+export function wgs84ToGcj02(lat: number, lon: number): LatLon {
+  if (outOfChina(lat, lon)) return { lat, lon }
+  const dLat = transformLat(lon - 105.0, lat - 35.0)
+  const dLon = transformLon(lon - 105.0, lat - 35.0)
+  const radLat = toRad(lat)
+  const magic = Math.sin(radLat)
+  const magicSq = 1 - GCJ_EE * magic * magic
+  const sqrtMagic = Math.sqrt(magicSq)
+  const latOff = (dLat * 180.0) / (((GCJ_A * (1 - GCJ_EE)) / (magicSq * sqrtMagic)) * Math.PI)
+  const lonOff = (dLon * 180.0) / ((GCJ_A / sqrtMagic) * Math.cos(radLat) * Math.PI)
+  return { lat: lat + latOff, lon: lon + lonOff }
+}
+
+/** GCJ-02 → WGS-84. Returns a new LatLon (identity when outside China). */
+export function gcj02ToWgs84(lat: number, lon: number): LatLon {
+  const gcj = wgs84ToGcj02(lat, lon)
+  return { lat: lat - (gcj.lat - lat), lon: lon - (gcj.lon - lon) }
+}
+
 export function lonToTileX(lon: number, zoom: number): number {
   return ((lon + 180) / 360) * 2 ** zoom
 }

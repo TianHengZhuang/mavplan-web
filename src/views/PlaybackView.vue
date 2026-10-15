@@ -484,7 +484,17 @@ onBeforeUnmount(stop)
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
   gap: 12px;
-  align-items: start;
+}
+
+/* 左右面板等高：grid 行高由最高项决定，stretch 让两面板底部对齐 */
+.playback-grid .panel-body.tight {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.playback-grid .map-canvas {
+  height: 100%;
 }
 
 .field.inline {

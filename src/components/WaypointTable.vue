@@ -169,7 +169,7 @@ function onTableKeydown(event: KeyboardEvent): void {
               <th>{{ t('field.yaw') }}</th>
               <th>{{ t('editor.legDistance') }}</th>
               <th>{{ t('editor.bearingFromPrev') }}</th>
-              <th>Δalt/s</th>
+              <th>{{ t('editor.altSpeed') }}</th>
               <th />
             </tr>
           </thead>
@@ -183,7 +183,7 @@ function onTableKeydown(event: KeyboardEvent): void {
             >
               <td class="cell-seq mono" :title="isNavigable(wp.command) ? t('editor.navItem') : t('editor.actionItem')">
                 {{ wp.seq }}
-                <span v-if="!isNavigable(wp.command)" class="badge warning" style="margin-left: 4px">A</span>
+                <span v-if="!isNavigable(wp.command)" class="badge warning" style="margin-left: 4px">{{ t('editor.actionBadge') }}</span>
               </td>
               <td class="cell-command">
                 <select v-model.number="wp.command">
@@ -213,7 +213,7 @@ function onTableKeydown(event: KeyboardEvent): void {
                   type="number"
                   step="1"
                   style="width: 74px"
-                  :title="wp.yaw === YAW_UNCONSTRAINED ? 'unconstrained' : 'heading'"
+                  :title="wp.yaw === YAW_UNCONSTRAINED ? t('editor.yawUnconstrained') : t('editor.yawHeading')"
                 />
               </td>
               <td class="mono">{{ legDistance(wp.seq) }}</td>
@@ -231,7 +231,7 @@ function onTableKeydown(event: KeyboardEvent): void {
                     ⧉
                   </button>
                   <button class="icon-btn" type="button" :title="t('editor.setHome')" @click.stop="store.setHomeFrom(wp.seq)">
-                    H
+                    {{ t('editor.homeShort') }}
                   </button>
                   <button class="icon-btn" type="button" :title="t('common.delete')" @click.stop="store.removeWaypoint(wp.seq)">
                     ✕

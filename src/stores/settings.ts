@@ -129,6 +129,28 @@ export const useSettingsStore = defineStore('settings', () => {
     taskBrief.value = null
   }
 
+  /**
+   * Demo-scenario companion data loaded together with the sample mission:
+   * a no-fly zone over the lake centre and raster tiles turned on so the
+   * editor shows a complete, leadership-ready picture after one click.
+   */
+  function loadDemoScenario(): void {
+    zones.value = [
+      {
+        id: 'demo-nfz-lake',
+        kind: 'circle',
+        name: '云龙湖 湖心禁飞区',
+        lat: 34.2478,
+        lon: 117.17265,
+        radiusM: 250,
+        ceilingM: 80
+      }
+    ]
+    taskBrief.value = null
+    showTiles.value = true
+    showZones.value = true
+  }
+
   const cameraTriggerCommands = computed(() => [DO_SET_CAM_TRIGG_DIST, DO_SET_CAM_TRIGG_INTERVAL])
 
   return {
@@ -152,6 +174,7 @@ export const useSettingsStore = defineStore('settings', () => {
     importZonesJson,
     exportZonesJson,
     applyTaskBrief,
-    clearTaskBrief
+    clearTaskBrief,
+    loadDemoScenario
   }
 })

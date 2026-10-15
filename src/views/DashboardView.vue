@@ -182,7 +182,7 @@ const issues = computed(() => store.issues)
 <style scoped>
 .dashboard {
   display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   align-items: start;
 }
@@ -200,11 +200,5 @@ const issues = computed(() => store.issues)
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
-}
-
-@media (max-width: 1180px) {
-  .dashboard {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 </style>

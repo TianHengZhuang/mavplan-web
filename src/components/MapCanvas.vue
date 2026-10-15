@@ -11,15 +11,18 @@ import {
   type LatLon,
   clamp,
   fromLocalXY,
+  gcj02ToWgs84,
   latToTileY,
   lonToTileX,
   metersPerDegLon,
   tileXToLon,
   tileYToLat,
   toLocalXY,
-  toRad
+  toRad,
+  wgs84ToGcj02
 } from '../core/geo'
 import { isNavigable } from '../core/actions'
+import { t } from '../core/i18n'
 import type { Waypoint } from '../core/mission'
 import type { Zone } from '../core/preflight'
 import type { TaskCheckPoint } from '../core/taskspec'
@@ -221,10 +224,16 @@ const tiles = computed(() => {
   const zoom = clamp(Math.round(Math.log2(resolution)), 2, 18)
   const northWest = unproject(-halfW.value, -halfH.value)
   const southEast = unproject(halfW.value, halfH.value)
-  const x0 = Math.floor(lonToTileX(northWest.lon, zoom))
-  const x1 = Math.floor(lonToTileX(southEast.lon, zoom))
-  const y0 = Math.floor(latToTileY(northWest.lat, zoom))
-  const y1 = Math.floor(latToTileY(southEast.lat, zoom))
+  // Amap tiles are served in the GCJ-02 datum while the mission data is
+  // WGS-84: convert the viewport corners before computing tile indices so
+  // the requested tiles cover the same ground, and convert each tile's
+  // GCJ-02 bounds back to WGS-84 before projecting onto the canvas.
+  const gcjNW = wgs84ToGcj02(northWest.lat, northWest.lon)
+  const gcjSE = wgs84ToGcj02(southEast.lat, southEast.lon)
+  const x0 = Math.floor(lonToTileX(gcjNW.lon, zoom))
+  const x1 = Math.floor(lonToTileX(gcjSE.lon, zoom))
+  const y0 = Math.floor(latToTileY(gcjNW.lat, zoom))
+  const y1 = Math.floor(latToTileY(gcjSE.lat, zoom))
   const maxIndex = 2 ** zoom
   if ((x1 - x0 + 1) * (y1 - y0 + 1) > 120) return []
   const result: { href: string; x: number; y: number; width: number; height: number }[] = []
@@ -235,10 +244,15 @@ const tiles = computed(() => {
       const east = tileXToLon(x + 1, zoom)
       const north = tileYToLat(y, zoom)
       const south = tileYToLat(y + 1, zoom)
-      const northWestPoint = project({ lat: north, lon: west })
-      const southEastPoint = project({ lat: south, lon: east })
+      const wgsNW = gcj02ToWgs84(north, west)
+      const wgsSE = gcj02ToWgs84(south, east)
+      const northWestPoint = project(wgsNW)
+      const southEastPoint = project(wgsSE)
+      // Amap (高德) raster tiles — reachable from mainland networks where the
+      // OSM tile server is blocked. Sub-domains webrd01..04 round-robin.
+      const subdomain = ((x + y) % 4) + 1
       result.push({
-        href: `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`,
+        href: `https://webrd0${subdomain}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=${x}&y=${y}&z=${zoom}`,
         x: northWestPoint.x,
         y: northWestPoint.y,
         width: southEastPoint.x - northWestPoint.x,
@@ -536,13 +550,13 @@ onBeforeUnmount(() => {
           >
             {{ wp.seq }}
           </text>
-          <title>WP{{ wp.seq }} · {{ wp.lat.toFixed(6) }}, {{ wp.lon.toFixed(6) }} · {{ wp.alt.toFixed(0) }}m</title>
+          <title>{{ t('editor.wp') }}{{ wp.seq }} · {{ wp.lat.toFixed(6) }}, {{ wp.lon.toFixed(6) }} · 高度 {{ wp.alt.toFixed(0) }}m</title>
         </g>
       </g>
     </svg>
 
     <div class="map-overlay top-right">
-      <span class="badge muted mono">{{ cursor ? `${cursor.lat.toFixed(5)}, ${cursor.lon.toFixed(5)}` : '—' }}</span>
+      <span class="badge muted mono">{{ t('editor.cursorPos') }}：{{ cursor ? `${cursor.lat.toFixed(5)}, ${cursor.lon.toFixed(5)}` : '—' }}</span>
     </div>
 
     <div class="map-overlay bottom-left">
@@ -553,7 +567,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="map-overlay bottom-right" v-if="showTiles">
-      <span class="attribution">© OpenStreetMap contributors</span>
+      <span class="attribution">© 高德地图</span>
     </div>
   </div>
 </template>

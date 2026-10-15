@@ -20,6 +20,7 @@
 import {
   DO_SET_CAM_TRIGG_DIST,
   DO_SET_CAM_TRIGG_INTERVAL,
+  NAV_LAND,
   NAV_WAYPOINT,
   commandName,
   isNavigable
@@ -107,12 +108,12 @@ export function validateWaypoint(wp: Waypoint): string[] {
     errors.push(`Longitude ${wp.lon} is out of range (-180 to 180)`)
   }
   if (wp.alt < -1000 || wp.alt > 50000) {
-    errors.push(`Altitude ${wp.alt}m is outside safe range (-1000 to 50000)`)
+    errors.push(`高度 ${wp.alt}m 超出安全范围（-1000 到 50000）`)
   }
-  if (wp.speed < 0) errors.push(`Speed ${wp.speed} cannot be negative`)
-  if (wp.delay < 0) errors.push(`Delay ${wp.delay} cannot be negative`)
+  if (wp.speed < 0) errors.push(`速度 ${wp.speed} 不能为负`)
+  if (wp.delay < 0) errors.push(`延时 ${wp.delay} 不能为负`)
   if ((wp.yaw < -180 || wp.yaw > 360) && wp.yaw !== YAW_UNCONSTRAINED) {
-    errors.push(`Yaw ${wp.yaw} is not in range (-180 to 360) or -9999`)
+    errors.push(`航向 ${wp.yaw} 超出范围（-180 到 360）或未使用 -9999`)
   }
   return errors
 }
@@ -121,7 +122,7 @@ export function validateMission(mission: MissionDoc): string[] {
   const errors: string[] = []
   if (!mission.waypoints.length) return ['Mission has no waypoints']
   mission.waypoints.forEach((wp, index) => {
-    for (const message of validateWaypoint(wp)) errors.push(`WP${index}: ${message}`)
+    for (const message of validateWaypoint(wp)) errors.push(`航点${index}: ${message}`)
   })
   const home = mission.waypoints[0]
   mission.waypoints.slice(1).forEach((wp, offset) => {
@@ -570,41 +571,64 @@ export function addCameraTrigger(
 }
 
 /**
- * A small, realistic teaching sample: a lake search-and-rescue sweep over
+ * A realistic teaching/demo sample: a lake search-and-rescue sweep over
  * Yunlong Lake (云龙湖), Xuzhou, Jiangsu (江苏省徐州市) — replace with your own site.
+ *
+ * The demo mission intentionally carries:
+ * - a 3-row zig-zag sweep grid (west-east, east-west, west-east),
+ * - two `DO_SET_CAM_TRIGG_DIST` camera triggers (40 m spacing),
+ * - a final NAV_LAND return-to-base,
+ * so every editor panel (map, waypoint table, altitude profile, timeline,
+ * summary, camera and preflight) has data to show when the sample is loaded.
  */
 export function sampleMission(): MissionDoc {
-  // Southwest shore of Yunlong Lake (云龙湖), Xuzhou, Jiangsu (江苏省徐州市)
-  const origin = { lat: 34.2472, lon: 117.1856 }
-  const mission = createMission('江苏省徐州市 云龙湖')
+  // Lake centre of Yunlong Lake (云龙湖), Xuzhou, Jiangsu (江苏省徐州市)
+  const origin = { lat: 34.2455, lon: 117.16675 }
+  const mission = createMission('江苏省徐州市 云龙湖 搜索救援演示')
   mission.home = [origin.lat, origin.lon, 0]
-  const legs: Array<[number, number, number]> = [
-    [0, 0, 60],
-    [0.0035, 0, 60],
-    [0.0035, 0.0035, 60],
-    [0.007, 0.0035, 60],
-    [0.007, 0.007, 60],
-    [0.0105, 0.007, 60],
-    [0.0105, 0.0035, 60],
-    [0.014, 0.0035, 60],
-    [0.014, 0, 45]
-  ]
-  waypointsPush(mission, legs, origin)
-  mission.waypoints.push(
-    createWaypoint({ lat: origin.lat + 0.014, lon: origin.lon, alt: 20, speed: 5, command: 21 })
-  )
-  return mission
-}
 
-function waypointsPush(
-  mission: MissionDoc,
-  legs: Array<[number, number, number]>,
-  origin: { lat: number; lon: number }
-): void {
-  for (const [dLat, dLon, alt] of legs) {
-    mission.waypoints.push(
-      createWaypoint({ lat: origin.lat + dLat, lon: origin.lon + dLon, alt, speed: 8 })
-    )
-  }
-  resequence(mission.waypoints)
+  // 3 rows × 4 columns sweep grid ([dLat, dLon] offsets from origin).
+  const grid: Array<[number, number]> = [
+    // Row 1 — west → east sweep at 60 m
+    [0.0, 0.0],
+    [0.0, 0.0025],
+    [0.0, 0.005],
+    [0.0, 0.0075],
+    // Row 2 — east → west sweep at 60 m
+    [0.002, 0.0075],
+    [0.002, 0.005],
+    [0.002, 0.0025],
+    [0.002, 0.0],
+    // Row 3 — west → east sweep at 45 m
+    [0.004, 0.0],
+    [0.004, 0.0025],
+    [0.004, 0.005],
+    [0.004, 0.0075]
+  ]
+  const navigable: Waypoint[] = grid.map(([dLat, dLon], index) => {
+    const row = Math.floor(index / 4)
+    return createWaypoint({
+      lat: origin.lat + dLat,
+      lon: origin.lon + dLon,
+      alt: row === 2 ? 45 : 60,
+      speed: 8
+    })
+  })
+
+  // Camera trigger after the 3rd point of row 1 and the 3rd point of row 3.
+  const withCamera: Waypoint[] = []
+  navigable.forEach((wp, index) => {
+    withCamera.push(wp)
+    if (index === 2 || index === 10) {
+      withCamera.push(createWaypoint({ ...wp, command: DO_SET_CAM_TRIGG_DIST, delay: 40 }))
+    }
+  })
+
+  // Return to base and land.
+  withCamera.push(
+    createWaypoint({ lat: origin.lat, lon: origin.lon, alt: 0, speed: 5, command: NAV_LAND })
+  )
+
+  mission.waypoints = resequence(withCamera)
+  return mission
 }

@@ -227,7 +227,7 @@ function printSheet(): void {
           <dl class="kv">
             <dt>{{ t('editor.missionName') }}</dt>
             <dd>{{ store.mission.name || t('common.unnamed') }}</dd>
-            <dt>HOME</dt>
+            <dt>{{ t('report.home') }}</dt>
             <dd class="mono">{{ home }}</dd>
             <dt>{{ t('preflight.zones') }}</dt>
             <dd class="mono">{{ settings.zones.length }}</dd>
@@ -257,10 +257,10 @@ function printSheet(): void {
             <tr>
               <th>#</th>
               <th>{{ t('editor.command') }}</th>
-              <th>Latitude</th>
-              <th>Longitude</th>
-              <th>Alt (m)</th>
-              <th>Speed (m/s)</th>
+              <th>{{ t('report.latitude') }}</th>
+              <th>{{ t('report.longitude') }}</th>
+              <th>{{ t('report.altitude') }}</th>
+              <th>{{ t('report.speed') }}</th>
               <th>{{ t('editor.actionItem') }}</th>
             </tr>
           </thead>
@@ -272,7 +272,7 @@ function printSheet(): void {
               <td class="mono">{{ formatCoord(wp.lon) }}</td>
               <td class="mono">{{ wp.alt.toFixed(0) }}</td>
               <td class="mono">{{ wp.speed.toFixed(1) }}</td>
-              <td class="mono">{{ isNavigable(wp.command) ? 'no' : 'yes' }}</td>
+              <td class="mono">{{ isNavigable(wp.command) ? t('report.no') : t('report.yes') }}</td>
             </tr>
           </tbody>
         </table>
@@ -283,7 +283,7 @@ function printSheet(): void {
         <table class="table">
           <thead>
             <tr>
-              <th>Leg</th>
+              <th>{{ t('report.leg') }}</th>
               <th>{{ t('editor.legDistance') }}</th>
               <th>{{ t('editor.bearingFromPrev') }}</th>
               <th>{{ t('editor.estimatedDuration') }}</th>
