@@ -50,7 +50,7 @@ async function copyAll(): Promise<void> {
         <thead>
           <tr>
             <th>{{ t('common.copy') }}</th>
-            <th>{{ settings.locale === 'zh-CN' ? '说明' : 'Note' }}</th>
+            <th>{{ t('cli.note') }}</th>
           </tr>
         </thead>
         <tbody>

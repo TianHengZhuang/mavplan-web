@@ -133,7 +133,7 @@ const issues = computed(() => store.issues)
 
         <div v-if="issues.length" class="findings" style="margin-top: 10px">
           <div v-for="(issue, index) in issues" :key="index" class="finding warning">
-            <span class="seq mono">#{{ index + 1 }}</span>
+            <span class="seq mono">{{ t('summary.issueNo', { n: index + 1 }) }}</span>
             <span>{{ issue }}</span>
           </div>
         </div>
@@ -166,7 +166,7 @@ const issues = computed(() => store.issues)
                 :class="{ selected: leg.seq === store.selectedSeq }"
                 @click="store.selectedSeq = leg.seq"
               >
-                <td class="mono">#{{ leg.seq - 1 }} → #{{ leg.seq }}</td>
+                <td class="mono">{{ t('timeline.legPair', { from: leg.seq - 1, to: leg.seq }) }}</td>
                 <td class="mono">{{ formatDistance(leg.distanceM) }}</td>
                 <td class="mono">{{ leg.bearing.toFixed(0) }}°</td>
                 <td class="mono">{{ store.waypoints[leg.seq].alt.toFixed(0) }} m</td>

@@ -4,6 +4,7 @@ import { type FleetDoc, formationOffsets } from './fleet'
 import { formatDistance, formatDuration } from './geo'
 import { estimatedDuration, type MissionDoc, totalDistance } from './mission'
 import { type CheckItem } from './preflight'
+import { t } from './i18n'
 
 export type ReviewVerdict = 'pass' | 'conditional' | 'fail'
 
@@ -56,10 +57,7 @@ function verdictFromChecks(checks: CheckItem[]): { verdict: ReviewVerdict; text:
 }
 
 function describeCheck(c: CheckItem): string {
-  const bits = Object.entries(c.params || {})
-    .map(([k, v]) => `${k}=${v}`)
-    .join(' ')
-  return bits ? `${c.code} ${bits}` : c.code
+  return t(`preflight.check.${c.code}`, c.params || {})
 }
 
 export function buildMissionReview(
@@ -187,7 +185,7 @@ export function renderReviewMarkdown(review: MissionReview): string {
   if (review.scoreBreakdown?.length) {
     lines.push('## 扣分明细')
     for (const d of review.scoreBreakdown) {
-      lines.push(`- −${d.points} [${d.level}] ${d.label}`)
+      lines.push(`- −${d.points} [${t(`preflight.level.${d.level}`)}] ${d.label}`)
     }
     lines.push('')
   }

@@ -47,7 +47,7 @@ function climbClass(rate: number): string {
 
 function compass(bearing: number): string {
   const sectors = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-  return sectors[Math.round(bearing / 45) % 8]
+  return t(`common.dir.${sectors[Math.round(bearing / 45) % 8]}`)
 }
 
 function focus(seq: number): void {
@@ -60,8 +60,8 @@ function focus(seq: number): void {
     <div class="panel-head">
       <h3>{{ t('timeline.title') }}</h3>
       <span class="badge muted mono">{{ legs.length }} {{ t('timeline.legs') }}</span>
-      <span class="badge muted mono">↑ {{ climbStats.up.toFixed(0) }} m</span>
-      <span class="badge muted mono">↓ {{ climbStats.down.toFixed(0) }} m</span>
+      <span class="badge muted mono">{{ t('timeline.climbUp', { n: climbStats.up.toFixed(0) }) }}</span>
+      <span class="badge muted mono">{{ t('timeline.climbDown', { n: climbStats.down.toFixed(0) }) }}</span>
       <span class="badge muted mono">{{ t('editor.maxAltSpeed') }} {{ steepest.toFixed(1) }} m/s</span>
       <div class="header-spacer" style="flex: 1" />
       <button class="btn small" type="button" :disabled="!store.waypoints.length" @click="store.addLandingWaypoint()">
@@ -83,7 +83,7 @@ function focus(seq: number): void {
           @click="focus(leg.toSeq)"
         >
           <span class="head">
-            <span class="mono">#{{ leg.fromSeq }} → #{{ leg.toSeq }}</span>
+            <span class="mono">{{ t('timeline.legPair', { from: leg.fromSeq, to: leg.toSeq }) }}</span>
             <span class="mono bearings">{{ compass(leg.bearing) }} {{ leg.bearing.toFixed(0) }}°</span>
           </span>
           <span class="metrics">

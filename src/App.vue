@@ -102,10 +102,10 @@ onBeforeUnmount(() => {
       <div class="header-spacer" />
 
       <div class="header-meta">
-        <span class="badge muted mono">{{ missionStore.stats.count }} wp</span>
-        <span class="badge muted mono">{{ formatDistance(missionStore.stats.distanceM) }}</span>
+        <span class="badge muted mono">{{ t('header.wpCount', { n: missionStore.stats.count }) }}</span>
+        <span class="badge muted mono">{{ t('header.totalDistance', { d: formatDistance(missionStore.stats.distanceM) }) }}</span>
 
-        <label class="switch" :title="theme === 'dark' ? 'Light' : 'Dark'">
+        <label class="switch" :title="theme === 'dark' ? t('common.theme.light') : t('common.theme.dark')">
           <input
             type="checkbox"
             :checked="theme === 'dark'"

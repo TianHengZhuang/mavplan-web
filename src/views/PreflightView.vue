@@ -31,7 +31,7 @@ const mapRef = ref<InstanceType<typeof MapCanvas> | null>(null)
           <h3>{{ t('editor.map') }}</h3>
           <div class="header-spacer" style="flex: 1" />
           <button class="btn small ghost" type="button" @click="mapRef?.fit()">
-            {{ t('common.apply') }} · fit
+            {{ t('editor.fit') }}
           </button>
         </div>
         <div class="panel-body tight">

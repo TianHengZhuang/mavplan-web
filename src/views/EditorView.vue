@@ -72,7 +72,7 @@ function loadSample(): void {
         <div class="badge muted mono">{{ t('editor.estimatedDuration') }} {{ formatDuration(store.stats.durationS) }}</div>
         <div class="badge muted mono">{{ t('editor.maxAltitude') }} {{ store.stats.maxAltitudeM.toFixed(0) }} m</div>
         <div class="badge" :class="store.home ? 'ok' : 'muted'" v-if="store.home">
-          {{ t('editor.home') }} {{ store.home[0].toFixed(5) }}, {{ store.home[1].toFixed(5) }}
+          {{ t('editor.homeCoord', { lat: store.home[0].toFixed(5), lon: store.home[1].toFixed(5) }) }}
         </div>
         <div v-if="store.issues.length" class="badge warning">
           {{ t('io.validationErrors') }} · {{ store.issues.length }}
@@ -133,8 +133,8 @@ function loadSample(): void {
               />
             </div>
             <p class="hint">
-              {{ armed ? t('editor.addHereHint') : t('editor.panHint') }} · {{ t('editor.selected') }}:
-              #{{ store.selectedSeq }}
+              {{ armed ? t('editor.addHereHint') : t('editor.panHint') }} · {{ t('editor.selected') }}：
+              {{ t('editor.wp') }}{{ store.selectedSeq }}
             </p>
           </div>
         </div>

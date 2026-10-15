@@ -144,7 +144,7 @@ export const useMissionStore = defineStore('mission', () => {
     const previous = undoStack.value.pop()
     if (!previous) return false
     applySnapshot(previous)
-    statusMessage.value = 'undo'
+    statusMessage.value = '已撤销'
     return true
   }
 
@@ -154,7 +154,7 @@ export const useMissionStore = defineStore('mission', () => {
     const next = redoStack.value.pop()
     if (!next) return false
     applySnapshot(next)
-    statusMessage.value = 'redo'
+    statusMessage.value = '已重做'
     return true
   }
 
@@ -310,7 +310,7 @@ export const useMissionStore = defineStore('mission', () => {
     pushHistory()
     mission.value.waypoints = []
     mission.value.home = null
-    if (!keepName) mission.value.name = 'Untitled Mission'
+    if (!keepName) mission.value.name = '未命名任务'
     reselect(0)
   }
 

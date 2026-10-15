@@ -130,7 +130,7 @@ function onTableKeydown(event: KeyboardEvent): void {
   <div class="panel">
     <div class="panel-head">
       <h3>{{ t('editor.panel.waypoints') }}</h3>
-      <span class="badge muted mono">{{ store.stats.count }}</span>
+      <span class="badge muted mono">{{ t('editor.waypointCount') }} {{ store.stats.count }}</span>
       <span class="badge muted mono">{{ t('editor.navItem') }} {{ store.navigableCount }}</span>
       <span class="badge muted mono">{{ t('editor.actionItem') }} {{ store.stats.actions }}</span>
       <div class="header-spacer" style="flex: 1" />

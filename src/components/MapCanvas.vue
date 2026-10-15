@@ -198,12 +198,12 @@ const requiredShapes = computed(() => {
 const homeMarker = computed(() => {
   if (props.home) {
     const p = project({ lat: props.home[0], lon: props.home[1] })
-    return { x: p.x, y: p.y, label: 'H' }
+    return { x: p.x, y: p.y, label: t('editor.homeShort') }
   }
   const first = props.waypoints[0]
   if (!first) return null
   const p = project(first)
-  return { x: p.x, y: p.y, label: 'H' }
+  return { x: p.x, y: p.y, label: t('editor.homeShort') }
 })
 
 function niceSpacing(scale: number, targetPixels: number): number {
@@ -550,7 +550,7 @@ onBeforeUnmount(() => {
           >
             {{ wp.seq }}
           </text>
-          <title>{{ t('editor.wp') }}{{ wp.seq }} · {{ wp.lat.toFixed(6) }}, {{ wp.lon.toFixed(6) }} · 高度 {{ wp.alt.toFixed(0) }}m</title>
+          <title>{{ t('editor.wp') }}{{ wp.seq }} · {{ t('field.lat') }} {{ wp.lat.toFixed(6) }} · {{ t('field.lon') }} {{ wp.lon.toFixed(6) }} · {{ t('field.alt') }} {{ wp.alt.toFixed(0) }}</title>
         </g>
       </g>
     </svg>

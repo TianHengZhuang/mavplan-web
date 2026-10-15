@@ -100,7 +100,7 @@ const climbExtremes = computed(() => {
       <h3>{{ t('editor.panel.profile') }}</h3>
       <span class="badge muted mono">{{ formatDistance(totalDistance) }}</span>
       <span class="badge muted mono">{{ durationText }}</span>
-      <span class="badge muted mono">{{ t('editor.maxAltSpeed') }} {{ climbExtremes.toFixed(1) }} m/s</span>
+      <span class="badge muted mono">{{ t('timeline.verticalRate') }} {{ climbExtremes.toFixed(1) }} m/s</span>
     </div>
     <div class="panel-body">
       <div v-if="!waypoints.length" class="empty">{{ t('editor.noWaypoints') }}</div>

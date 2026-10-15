@@ -44,7 +44,8 @@ export const useSettingsStore = defineStore('settings', () => {
   const taskBrief = ref<TaskBrief | null>(stored.task ?? null)
   const statusMessage = ref('')
 
-  if (stored.locale) setLocale(stored.locale)
+  // Demo-first: always start in zh-CN, ignoring any previously persisted locale
+  // (e.g. a leftover 'en' from manual testing) so the page opens in Chinese.
 
   function persist(): void {
     try {

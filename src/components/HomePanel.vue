@@ -50,7 +50,7 @@ const outOfRange = computed(() => rows.value.filter((row) => row.exceeds).length
 
 function compass(bearing: number): string {
   const sectors = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
-  return sectors[Math.round(bearing / 45) % 8]
+  return t(`common.dir.${sectors[Math.round(bearing / 45) % 8]}`)
 }
 
 function apply(): void {
@@ -79,7 +79,7 @@ function rtl(): void {
         {{ store.home ? t('editor.home') : t('home.missing') }}
       </span>
       <span v-if="store.home" class="badge muted mono">
-        {{ store.home[0].toFixed(5) }}, {{ store.home[1].toFixed(5) }} · {{ store.home[2].toFixed(0) }} m
+        {{ t('home.coord', { lat: store.home[0].toFixed(5), lon: store.home[1].toFixed(5), alt: store.home[2].toFixed(0) }) }}
       </span>
       <div class="header-spacer" style="flex: 1" />
       <span v-if="outOfRange" class="badge warning">{{ outOfRange }} × {{ t('home.exceeds') }}</span>
@@ -131,7 +131,7 @@ function rtl(): void {
               :class="{ selected: row.seq === store.selectedSeq }"
               @click="store.selectedSeq = row.seq"
             >
-              <td class="mono">#{{ row.seq }}</td>
+              <td class="mono">{{ t('editor.wp') }}{{ row.seq }}</td>
               <td class="mono" :class="{ over: row.exceeds }">{{ formatDistance(row.distanceM) }}</td>
               <td class="mono">{{ compass(row.bearing) }} {{ row.bearing.toFixed(0) }}°</td>
               <td class="mono">{{ store.waypoints[row.seq].alt.toFixed(0) }} m</td>

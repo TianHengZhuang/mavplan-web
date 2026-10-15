@@ -131,7 +131,7 @@ const briefingText = computed(() => {
   lines.push(`${t('report.generated')}: ${generatedAt.value}`)
   lines.push('')
   lines.push(`[${t('report.missionInfo')}]`)
-  lines.push(`HOME: ${home.value}`)
+  lines.push(`${t('report.home')}: ${home.value}`)
   lines.push(
     `${t('editor.totalDistance')}: ${formatDistance(plan.value.totalDistanceM)} / ${t(
       'editor.estimatedDuration'
@@ -142,16 +142,14 @@ const briefingText = computed(() => {
   lines.push(`[${t('report.section.waypoints')}]`)
   store.waypoints.forEach((wp, index) => {
     lines.push(
-      `${index + 1}. ${commandLabel(wp.command, t)} ${formatCoord(wp.lat)}, ${formatCoord(
-        wp.lon
-      )} ${wp.alt.toFixed(0)}m ${wp.speed.toFixed(1)}m/s`
+      `${index + 1}. ${commandLabel(wp.command, t)} ${t('action.coord', { lat: formatCoord(wp.lat), lon: formatCoord(wp.lon) })} ${wp.alt.toFixed(0)}m ${wp.speed.toFixed(1)}m/s`
     )
   })
   lines.push('')
   lines.push(`[${t('report.section.legs')}]`)
   plan.value.legs.forEach((leg) => {
     lines.push(
-      `#${leg.fromSeq} → #${leg.toSeq}: ${formatDistance(leg.distanceM)} / ${leg.bearing.toFixed(
+      `${t('report.legPair', { from: leg.fromSeq, to: leg.toSeq })}: ${formatDistance(leg.distanceM)} / ${leg.bearing.toFixed(
         0
       )}° / ${formatDuration(leg.durationS)} / ${leg.climbRate >= 0 ? '+' : ''}${leg.climbRate.toFixed(
         1
@@ -203,7 +201,7 @@ function printSheet(): void {
         <div class="sheet-meta mono">
           <span>{{ store.mission.name || t('common.unnamed') }}</span>
           <span>{{ t('report.generated') }}: {{ generatedAt }}</span>
-          <span>{{ home }}</span>
+          <span>{{ t('report.home') }} {{ home }}</span>
         </div>
       </header>
 
@@ -255,7 +253,7 @@ function printSheet(): void {
         <table class="table">
           <thead>
             <tr>
-              <th>#</th>
+              <th>{{ t('editor.seq') }}</th>
               <th>{{ t('editor.command') }}</th>
               <th>{{ t('report.latitude') }}</th>
               <th>{{ t('report.longitude') }}</th>
@@ -292,7 +290,7 @@ function printSheet(): void {
           </thead>
           <tbody>
             <tr v-for="leg in plan.legs" :key="leg.index">
-              <td class="mono">#{{ leg.fromSeq }} → #{{ leg.toSeq }}</td>
+              <td class="mono">{{ t('report.legPair', { from: leg.fromSeq, to: leg.toSeq }) }}</td>
               <td class="mono">{{ formatDistance(leg.distanceM) }}</td>
               <td class="mono">{{ leg.bearing.toFixed(0) }}°</td>
               <td class="mono">{{ formatDuration(leg.durationS) }}</td>
@@ -349,7 +347,7 @@ function printSheet(): void {
           <p class="hint">{{ t('grade.hint') }}</p>
           <ul v-if="missionReview.scoreBreakdown.length" class="grade-list">
             <li v-for="(d, i) in missionReview.scoreBreakdown" :key="i" class="mono">
-              -{{ d.points }} {{ d.level }} — {{ d.label }}
+              -{{ d.points }} {{ t(`preflight.level.${d.level}`) }} — {{ d.label }}
             </li>
           </ul>
           <p v-else class="hint">{{ t('grade.noDeductions') }}</p>

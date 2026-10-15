@@ -83,7 +83,7 @@ function addCircleZone(): void {
   settings.addZone({
     id: `zone-${Date.now()}`,
     kind: 'circle',
-    name: `NFZ ${settings.zones.length + 1}`,
+    name: t('nfz.defaultName', { n: settings.zones.length + 1 }),
     lat: Number(home.lat.toFixed(6)),
     lon: Number(home.lon.toFixed(6)),
     radiusM: 200,
@@ -105,7 +105,7 @@ function addPolygonZone(): void {
   settings.addZone({
     id: `zone-${Date.now()}`,
     kind: 'polygon',
-    name: `NFZ ${settings.zones.length + 1}`,
+    name: t('nfz.defaultName', { n: settings.zones.length + 1 }),
     vertices,
     ceilingM: 0
   })
@@ -135,7 +135,7 @@ const copyMdState = ref<'idle' | 'ok' | 'fail'>('idle')
 async function copyPreflightJson(): Promise<void> {
   const payload = toPreflightJson(
     report.value,
-    store.mission.name || 'mission',
+    store.mission.name || t('common.unnamed'),
     store.waypoints.length,
     settings.zones.length,
     messageOf
@@ -153,7 +153,7 @@ async function copyPreflightJson(): Promise<void> {
 }
 
 function preflightMarkdown(): string {
-  const name = store.mission.name || 'mission'
+  const name = store.mission.name || t('common.unnamed')
   const cleared = report.value.cleared ? t('preflight.resultCleared') : t('preflight.resultBlocked')
   const lines = [
     `# ${t('preflight.title')} — ${name}`,
@@ -279,7 +279,7 @@ async function copyPreflightMarkdown(): Promise<void> {
                 {{ t(`preflight.level.${item.level}`) }}
               </span>
               <span class="finding-text">{{ messageOf(item) }}</span>
-              <span v-if="typeof item.seq === 'number'" class="badge muted mono">#{{ item.seq }}</span>
+              <span v-if="typeof item.seq === 'number'" class="badge muted mono">{{ t('editor.wp') }}{{ item.seq }}</span>
             </li>
           </ul>
         </section>
@@ -295,7 +295,7 @@ async function copyPreflightMarkdown(): Promise<void> {
             {{ t(`preflight.level.${item.level}`) }}
           </span>
           <span class="finding-text">{{ messageOf(item) }}</span>
-          <span v-if="typeof item.seq === 'number'" class="badge muted mono">#{{ item.seq }}</span>
+          <span v-if="typeof item.seq === 'number'" class="badge muted mono">{{ t('editor.wp') }}{{ item.seq }}</span>
         </li>
       </ul>
       <div v-else class="empty">{{ t('preflight.noIssues') }}</div>
@@ -378,8 +378,8 @@ async function copyPreflightMarkdown(): Promise<void> {
                   :value="zone.name"
                   @input="settings.updateZone(zone.id, { name: ($event.target as HTMLInputElement).value })"
                 />
-                <span class="badge muted mono">{{ zone.kind === 'circle' ? t('preflight.addCircleZone') : t('preflight.addPolygonZone') }}</span>
-                <button class="icon-btn" type="button" @click="settings.removeZone(zone.id)">✕</button>
+                <span class="badge muted mono">{{ zone.kind === 'circle' ? t('nfz.kind.circle') : t('nfz.kind.polygon') }}</span>
+                <button class="icon-btn" type="button" :title="t('common.delete')" @click="settings.removeZone(zone.id)">✕</button>
               </div>
 
               <div v-if="zone.kind === 'circle'" class="field-row">

@@ -165,7 +165,7 @@ function addPolygonZone(): void {
     message.value = t('pattern.polygonNeedThree')
     return
   }
-  const name = `NFZ ${settings.zones.length + 1}`
+  const name = t('nfz.defaultName', { n: settings.zones.length + 1 })
   settings.addZone({
     id: `zone-${Date.now()}`,
     kind: 'polygon',
@@ -177,7 +177,7 @@ function addPolygonZone(): void {
 }
 
 function addOrbitZone(): void {
-  const name = `NFZ ${settings.zones.length + 1}`
+  const name = t('nfz.defaultName', { n: settings.zones.length + 1 })
   settings.addZone({
     id: `zone-${Date.now()}`,
     kind: 'circle',
@@ -253,7 +253,9 @@ onMounted(() => {
           <div class="field">
             <label>{{ t('pattern.startCorner') }}</label>
             <select v-model="lawn.startCorner">
-              <option v-for="corner in cornerOptions" :key="corner" :value="corner">{{ corner }}</option>
+              <option v-for="corner in cornerOptions" :key="corner" :value="corner">
+                {{ t(`pattern.corner.${corner}`) }}
+              </option>
             </select>
           </div>
         </div>
@@ -262,7 +264,7 @@ onMounted(() => {
             <input v-model="lawn.startFromOuter" type="checkbox" />
             {{ t('pattern.startFromOuter') }}
           </label>
-          <span class="badge muted mono">≈ {{ lawnmowerPreview.length }}</span>
+          <span class="badge muted mono">{{ t('pattern.previewCount', { n: lawnmowerPreview.length }) }}</span>
           <button class="btn small primary" type="button" @click="write(lawnmowerPreview, 'replace')">
             {{ t('pattern.replace') }}
           </button>
@@ -311,7 +313,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="block-footer">
-          <span class="badge muted mono">≈ {{ orbitPreview.length }}</span>
+          <span class="badge muted mono">{{ t('pattern.previewCount', { n: orbitPreview.length }) }}</span>
           <button class="btn small primary" type="button" @click="write(orbitPreview, 'replace')">
             {{ t('pattern.replace') }}
           </button>
@@ -351,9 +353,9 @@ onMounted(() => {
             <input v-model="poly.startFromOuter" type="checkbox" />
             {{ t('pattern.startFromOuter') }}
           </label>
-          <span class="badge muted mono">{{ polygonVertices.length }} pts</span>
-          <span class="badge muted mono">{{ (surveyArea / 10000).toFixed(2) }} ha</span>
-          <span class="badge muted mono">≈ {{ polygonPreview.length }}</span>
+          <span class="badge muted mono">{{ t('pattern.polygonPointCount', { n: polygonVertices.length }) }}</span>
+          <span class="badge muted mono">{{ t('pattern.areaHa', { n: (surveyArea / 10000).toFixed(2) }) }}</span>
+          <span class="badge muted mono">{{ t('pattern.previewCount', { n: polygonPreview.length }) }}</span>
           <button class="btn small primary" type="button" @click="write(polygonPreview, 'replace')">
             {{ t('pattern.replace') }}
           </button>

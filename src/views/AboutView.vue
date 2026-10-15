@@ -5,32 +5,6 @@
  */
 import CliCompanion from '../components/CliCompanion.vue'
 import { t } from '../core/i18n'
-import { useSettingsStore } from '../stores/settings'
-
-const settings = useSettingsStore()
-
-const features = [
-  {
-    zh: '航点增删改、拖拽定位、指令与动作项混排、HOME 设置',
-    en: 'Create, edit, drag and re-order waypoints; mix navigation items with actions; set HOME'
-  },
-  {
-    zh: '环绕、多边形测区等自动航迹生成',
-    en: 'Circular orbit and polygon survey pattern generators'
-  },
-  {
-    zh: '安全预检：限高 / 限距 / 转弯半径 / 禁飞区（圆与多边形、限高）/ 电池与能耗',
-    en: 'Preflight: altitude and distance envelopes, turn radius, circular + polygon no-fly zones with ceilings, battery model'
-  },
-  {
-    zh: '多格式导入导出：mavplan JSON、QGC .plan、QGC WPL 110/120、KML、CSV',
-    en: 'Import/export: mavplan JSON, QGC .plan, QGC WPL 110/120, KML, CSV'
-  },
-  {
-    zh: '中英文双语、离线可用、localStorage 自动持久化',
-    en: 'Chinese/English UI, works offline, mission and settings persisted in localStorage'
-  }
-]
 </script>
 
 <template>
@@ -38,8 +12,8 @@ const features = [
     <section class="panel">
       <div class="panel-head">
         <h3>{{ t('about.title') }}</h3>
-        <span class="badge muted mono">v1.17.0</span>
-        <span class="badge muted mono">MIT</span>
+        <span class="badge muted mono">{{ t('about.version') }}</span>
+        <span class="badge muted mono">{{ t('about.license') }}</span>
       </div>
       <div class="panel-body">
         <p class="lead">{{ t('about.body') }}</p>
@@ -47,12 +21,11 @@ const features = [
         <p class="muted">{{ t('about.cli') }}</p>
 
         <ul class="features">
-          <li v-for="(feature, index) in features" :key="index">
-            {{ settings.locale === 'zh-CN' ? feature.zh : feature.en }}
-          </li>
+          <li v-for="index in 5" :key="index">{{ t(`about.feat.${index}`) }}</li>
         </ul>
 
         <p class="muted">
+          {{ t('about.runHint') }}
           <a href="https://github.com/TianHengZhuang/mavplan" target="_blank" rel="noreferrer">mavplan</a>
           ·
           <a href="https://github.com/TianHengZhuang/mavplan-web" target="_blank" rel="noreferrer">mavplan-web</a>

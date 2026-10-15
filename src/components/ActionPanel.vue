@@ -82,7 +82,7 @@ function insert(): void {
   <div class="panel">
     <div class="panel-head">
       <h3>{{ t('action.title') }}</h3>
-      <span class="badge muted mono">{{ rows.length }} / {{ store.waypoints.length }}</span>
+      <span class="badge muted mono">{{ t('action.count', { n: rows.length, total: store.waypoints.length }) }}</span>
       <div class="header-spacer" style="flex: 1" />
       <span class="badge muted mono">{{ commandLabel(commandDraft, t) }}</span>
     </div>
@@ -92,7 +92,7 @@ function insert(): void {
       <table v-else class="table">
         <thead>
           <tr>
-            <th>#</th>
+            <th>{{ t('editor.seq') }}</th>
             <th>{{ t('editor.command') }}</th>
             <th>{{ t('action.param') }}</th>
             <th>{{ t('action.position') }}</th>
@@ -121,15 +121,15 @@ function insert(): void {
               />
               <span v-else class="muted mono">—</span>
             </td>
-            <td class="mono">{{ formatCoord(row.lat) }}, {{ formatCoord(row.lon) }}</td>
+            <td class="mono">{{ t('action.coord', { lat: formatCoord(row.lat), lon: formatCoord(row.lon) }) }}</td>
             <td class="row-actions">
-              <button class="btn tiny" type="button" @click.stop="store.moveWaypoint(row.index, -1)">
+              <button class="btn tiny" type="button" :title="t('editor.moveUp')" @click.stop="store.moveWaypoint(row.index, -1)">
                 ↑
               </button>
               <button class="btn tiny" type="button" @click.stop="store.moveWaypoint(row.index, 1)">
                 ↓
               </button>
-              <button class="btn tiny danger" type="button" @click.stop="store.removeWaypoint(row.index)">
+              <button class="btn tiny danger" type="button" :title="t('common.delete')" @click.stop="store.removeWaypoint(row.index)">
                 ×
               </button>
             </td>

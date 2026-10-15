@@ -237,11 +237,11 @@ onBeforeUnmount(stop)
         <span v-if="fleetStore.lead" class="badge muted mono">
           {{ fleetStore.lead.name }} · {{ fleetStore.lead.model || '—' }}
         </span>
-        <span v-if="mode === 'plan'" class="badge muted mono">{{ formatDistance(totalM) }}</span>
-        <span v-if="mode === 'plan'" class="badge muted mono">{{ formatDuration(totalDurationS) }}</span>
+        <span v-if="mode === 'plan'" class="badge muted mono">{{ t('editor.totalDistance') }} {{ formatDistance(totalM) }}</span>
+        <span v-if="mode === 'plan'" class="badge muted mono">{{ t('editor.estimatedDuration') }} {{ formatDuration(totalDurationS) }}</span>
         <template v-if="mode === 'log' && logTrack">
-          <span class="badge muted mono">{{ formatDistance(logTrack.distanceM) }}</span>
-          <span class="badge muted mono">{{ formatDuration(logTrack.durationS) }}</span>
+          <span class="badge muted mono">{{ t('editor.totalDistance') }} {{ formatDistance(logTrack.distanceM) }}</span>
+          <span class="badge muted mono">{{ t('editor.estimatedDuration') }} {{ formatDuration(logTrack.durationS) }}</span>
           <span class="badge muted mono">{{ logTrack.sourceName }}</span>
         </template>
         <span class="badge" v-if="mode === 'log'" :class="'ok'">{{ t('replay.modeLog') }}</span>
@@ -330,7 +330,7 @@ onBeforeUnmount(stop)
             class="tick"
             :class="{ done: progressM >= leg.endM, active: index === activeIndex }"
             :style="{ left: `${totalM > 0 ? (leg.endM / totalM) * 100 : 0}%` }"
-            :title="`#${leg.toSeq}`"
+            :title="t('playback.tickTitle', { seq: leg.toSeq })"
             @click="jumpToLeg(index)"
           />
         </div>
@@ -356,7 +356,7 @@ onBeforeUnmount(stop)
         <div v-if="mode === 'plan' && sample" class="stats" style="margin-top: 12px">
           <div class="stat">
             <div class="label">{{ t('playback.leg') }}</div>
-            <div class="value">#{{ activeLeg?.fromSeq }} → #{{ activeLeg?.toSeq }}</div>
+            <div class="value">{{ t('playback.legPair', { from: activeLeg?.fromSeq, to: activeLeg?.toSeq }) }}</div>
           </div>
           <div class="stat">
             <div class="label">{{ t('field.lat') }}</div>

@@ -62,11 +62,11 @@ export const useFleetStore = defineStore('fleet', () => {
   const lead = computed(() => fleet.value.drones.find((d) => d.role === 'lead') ?? fleet.value.drones[0] ?? null)
   const issues = computed(() => {
     const list: string[] = []
-    if (!fleet.value.drones.length) list.push('fleet empty')
-    if (fleet.value.drones.filter((d) => d.role === 'lead').length > 1) list.push('multiple leads')
+    if (!fleet.value.drones.length) list.push('机队中没有无人机')
+    if (fleet.value.drones.filter((d) => d.role === 'lead').length > 1) list.push('机队中有多架主机')
     const names = new Set<string>()
     for (const d of fleet.value.drones) {
-      if (names.has(d.name)) list.push(`duplicate ${d.name}`)
+      if (names.has(d.name)) list.push(`名称重复：${d.name}`)
       names.add(d.name)
     }
     return list

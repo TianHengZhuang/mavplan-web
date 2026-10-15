@@ -87,7 +87,7 @@ export function createWaypoint(partial: Partial<Waypoint> = {}): Waypoint {
   }
 }
 
-export function createMission(name = 'Untitled Mission'): MissionDoc {
+export function createMission(name = '未命名任务'): MissionDoc {
   return { name, frame: 3, home: null, waypoints: [] }
 }
 
@@ -212,7 +212,7 @@ export function fromDict(data: Record<string, unknown>): MissionDoc {
   const rawWaypoints = Array.isArray(data.waypoints) ? (data.waypoints as Record<string, unknown>[]) : []
   const home = Array.isArray(data.home) ? (data.home as number[]) : null
   return {
-    name: typeof data.name === 'string' ? data.name : 'Untitled Mission',
+    name: typeof data.name === 'string' ? data.name : '未命名任务',
     frame: typeof data.frame === 'number' ? data.frame : 3,
     home: home && home.length >= 3 ? [home[0], home[1], home[2]] : null,
     waypoints: resequence(

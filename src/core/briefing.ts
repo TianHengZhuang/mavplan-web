@@ -12,28 +12,28 @@ export interface BriefingInput {
 }
 
 export function buildBriefingMarkdown(input: BriefingInput): string {
-  const name = input.name || 'Mission'
+  const name = input.name || '未命名任务'
   const lines = [
     `# ${name}`,
     '',
-    `| Metric | Value |`,
+    `| 指标 | 数值 |`,
     `| --- | --- |`,
-    `| Waypoints | ${input.waypointCount} |`,
-    `| Distance | ${input.distanceLabel} |`,
-    `| Duration | ${input.durationLabel} |`,
-    `| Max altitude | ${input.maxAltitudeM.toFixed(0)} m |`,
-    `| No-fly zones | ${input.zoneCount} |`,
-    `| Altitude over limit | ${input.altitudeOverLimit} |`,
-    `| Task brief | ${input.taskBriefName || '—'} |`,
+    `| 航点数 | ${input.waypointCount} |`,
+    `| 距离 | ${input.distanceLabel} |`,
+    `| 时长 | ${input.durationLabel} |`,
+    `| 最高高度 | ${input.maxAltitudeM.toFixed(0)} m |`,
+    `| 禁飞区 | ${input.zoneCount} |`,
+    `| 超限航点 | ${input.altitudeOverLimit} |`,
+    `| 任务简报 | ${input.taskBriefName || '—'} |`,
     ''
   ]
   if (input.issues.length) {
-    lines.push('## Issues', '')
+    lines.push('## 问题', '')
     input.issues.forEach((issue, index) => {
       lines.push(`${index + 1}. ${issue}`)
     })
   } else {
-    lines.push('No open issues.')
+    lines.push('无待处理问题。')
   }
   return lines.join('\n')
 }

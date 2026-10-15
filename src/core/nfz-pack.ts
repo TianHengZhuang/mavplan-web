@@ -136,19 +136,19 @@ export function resolveRegionZones(
 ): { pack: NfzPack; records: NfzRecord[]; warnings: string[] } {
   const warnings: string[] = []
   const prov = findProvince(index, province)
-  if (!prov) throw new Error(`unknown province: ${province}`)
+  if (!prov) throw new Error(`未找到省份：${province}`)
   const ct = findCity(prov, city)
-  if (!ct) throw new Error(`unknown city: ${city}`)
+  if (!ct) throw new Error(`未找到城市：${city}`)
   let pack = builtinPackForCity(ct.code)
   if (!pack) {
     pack = emptyPack(prov.name, ct.name, ct.code)
-    warnings.push(`no NFZ pack for ${prov.name}/${ct.name}`)
+    warnings.push(`暂无 ${prov.name}/${ct.name} 的禁飞数据包`)
   }
   let records: NfzRecord[]
   if (district) {
     const known = ct.districts.some((d) => d.name === district || d.code === district)
     if (!known) {
-      warnings.push(`unknown district ${district}`)
+      warnings.push(`未知区县：${district}`)
       records = [...pack.zones]
     } else {
       const label = ct.districts.find((d) => d.name === district || d.code === district)?.name ?? district

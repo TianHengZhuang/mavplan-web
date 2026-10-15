@@ -61,7 +61,7 @@ export function createDrone(partial: Partial<Drone> & { name: string }): Drone {
 
 export function singleLeadFleet(missionName: string, home?: [number, number, number] | null): FleetDoc {
   return {
-    missionName: missionName || 'Untitled Mission',
+    missionName: missionName || '未命名任务',
     drones: [
       createDrone({
         id: 'uav-1',
@@ -77,25 +77,25 @@ export function singleLeadFleet(missionName: string, home?: [number, number, num
 
 export function validateDrone(drone: Drone, existing: Drone[] = []): string[] {
   const issues: string[] = []
-  if (!drone.id) issues.push('id required')
-  if (!drone.name || !NAME_RE.test(drone.name)) issues.push(`invalid name: ${drone.name}`)
-  if (drone.batteryWh <= 0) issues.push('batteryWh must be > 0')
-  if (drone.maxAltM <= 0 || drone.cruiseSpeedMs <= 0) issues.push('maxAltM/cruiseSpeed must be > 0')
+  if (!drone.id) issues.push('编号不能为空')
+  if (!drone.name || !NAME_RE.test(drone.name)) issues.push(`名称无效：${drone.name}`)
+  if (drone.batteryWh <= 0) issues.push('电池容量必须大于 0')
+  if (drone.maxAltM <= 0 || drone.cruiseSpeedMs <= 0) issues.push('最大升限 / 巡航速度必须大于 0')
   for (const other of existing) {
-    if (other.id === drone.id) issues.push(`duplicate id: ${drone.id}`)
-    if (other.name === drone.name) issues.push(`duplicate name: ${drone.name}`)
+    if (other.id === drone.id) issues.push(`编号重复：${drone.id}`)
+    if (other.name === drone.name) issues.push(`名称重复：${drone.name}`)
   }
   return issues
 }
 
 export function validateFleet(fleet: FleetDoc): string[] {
   const issues: string[] = []
-  if (!fleet.missionName) issues.push('missionName empty')
-  if (!fleet.drones.length) issues.push('fleet has no drones')
-  if (fleet.drones.length > 20) issues.push('fleet exceeds 20 drones')
+  if (!fleet.missionName) issues.push('任务名称不能为空')
+  if (!fleet.drones.length) issues.push('机队中没有无人机')
+  if (fleet.drones.length > 20) issues.push('机队超过 20 架')
   const leads = fleet.drones.filter((d) => d.role === 'lead').length
-  if (fleet.drones.length && leads === 0) issues.push('no lead drone')
-  if (leads > 1) issues.push('more than one lead')
+  if (fleet.drones.length && leads === 0) issues.push('机队缺少主机')
+  if (leads > 1) issues.push('机队中有多架主机')
   return issues
 }
 

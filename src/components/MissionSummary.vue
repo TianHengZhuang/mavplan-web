@@ -24,7 +24,7 @@ const copyState = ref<'idle' | 'ok' | 'fail'>('idle')
 
 async function copyBriefing(): Promise<void> {
   const markdown = buildBriefingMarkdown({
-    name: store.mission.name || 'Mission',
+    name: store.mission.name || t('common.unnamed'),
     waypointCount: store.stats.count,
     distanceLabel: formatDistance(store.stats.distanceM),
     durationLabel: formatDuration(store.stats.durationS),
@@ -85,8 +85,12 @@ async function copyBriefing(): Promise<void> {
           <div class="value">{{ store.stats.maxAltitudeM.toFixed(0) }} m</div>
         </div>
         <div class="stat">
-          <div class="label">{{ t('nav.preflight') }}</div>
-          <div class="value">{{ zoneCount }} · {{ altitudeOk }}</div>
+          <div class="label">{{ t('nfz.title') }}</div>
+          <div class="value">{{ zoneCount }}</div>
+        </div>
+        <div class="stat">
+          <div class="label">{{ t('dashboard.altitudeLimit') }}</div>
+          <div class="value">{{ altitudeOk }}</div>
         </div>
         <div class="stat">
           <div class="label">{{ t('task.brief') }}</div>
@@ -95,7 +99,7 @@ async function copyBriefing(): Promise<void> {
       </div>
       <div v-if="store.issues.length" class="issues">
         <div v-for="(issue, index) in store.issues.slice(0, 4)" :key="index" class="finding warning">
-          <span class="mono">#{{ index + 1 }}</span>
+          <span class="mono">{{ t('summary.issueNo', { n: index + 1 }) }}</span>
           <span>{{ issue }}</span>
         </div>
       </div>

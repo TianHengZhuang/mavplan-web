@@ -16,7 +16,7 @@ function add(): void {
   if (!name) return
   const ok = fleet.addDrone({
     name,
-    callsign: newCallsign.value.trim() || `UAV-${String(fleet.count + 1).padStart(2, '0')}`,
+    callsign: newCallsign.value.trim() || t('fleet.defaultCallsign', { n: String(fleet.count + 1).padStart(2, '0') }),
     model: newModel.value.trim(),
     role: newRole.value
   })
@@ -48,7 +48,7 @@ function statusClass(status: Drone['status']): string {
         <article v-for="d in fleet.drones" :key="d.id" class="fleet-card">
           <header>
             <strong>{{ d.name }}</strong>
-            <span class="badge" :class="statusClass(d.status)">{{ d.status }}</span>
+            <span class="badge" :class="statusClass(d.status)">{{ t('fleet.status.' + d.status) }}</span>
           </header>
           <div class="meta mono">
             <span>{{ d.callsign || '—' }}</span>
@@ -56,9 +56,9 @@ function statusClass(status: Drone['status']): string {
             <span>{{ t('fleet.role.' + d.role) }}</span>
           </div>
           <div class="meta">
-            <span>{{ d.batteryWh }} Wh</span>
-            <span>{{ d.maxAltM }} m</span>
-            <span>{{ d.cruiseSpeedMs }} m/s</span>
+            <span>{{ t('fleet.battery') }} {{ d.batteryWh }} Wh</span>
+            <span>{{ t('fleet.maxAlt') }} {{ d.maxAltM }} m</span>
+            <span>{{ t('fleet.cruise') }} {{ d.cruiseSpeedMs }} m/s</span>
           </div>
           <footer>
             <button
